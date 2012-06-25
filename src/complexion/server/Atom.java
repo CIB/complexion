@@ -23,9 +23,6 @@ public class Atom {
 		// Sprite the object is currently associated with.
 		public Sprite sprite;  
 		
-		// Maps verb names to verb objects(this may become unnecessary with reflection)
-		public Map<String,Verb> verbs;
-		
 		// Determines whether the object will be rendered above or
 		// below other objects
 		public int layer;
@@ -47,7 +44,7 @@ public class Atom {
 		// A verb call to the object with Java Object args the verb itself has to sort these out.
 		// TODO: Use java reflection to call the verb with the right parameters etc.
 		@SuppressWarnings("rawtypes")
-		boolean callVerb(String key,Object[] args)
+		public boolean callVerb(String key,Object[] args)
 		{
 			Class[] classes = toClass(args);
 			Method func;
@@ -82,6 +79,10 @@ public class Atom {
 				return false;
 		}
 		@SuppressWarnings("rawtypes")
+		public void printTest(String A)
+		{
+			System.out.println(A);
+		}
 		private Class[] toClass(Object[] args)
 		{
 			Class[] value = new Class[args.length];
