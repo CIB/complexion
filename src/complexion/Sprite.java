@@ -31,15 +31,6 @@ public class Sprite {
 	public Sprite(String filename) throws IOException 
 	{
 		parseDMI(new FileInputStream(filename));
-		
-		// Test code for the generated states
-		// ----------------------------------
-	    // retrieve image
-		SpriteState s = states.get("breath");
-		SpriteFrame f = s.frames.get(0);
-	    BufferedImage bi = f.directions.get(1);
-	    File outputfile = new File("D:/saved.png");
-	    ImageIO.write(bi, "png", outputfile);
 	}
 	
 	/**
@@ -84,6 +75,43 @@ public class Sprite {
 	public int getHeight()
 	{
 		return height;
+	}
+	
+	/**
+	 * Get the BufferedImage associated with a specific state/frame/dir combination.
+	 * @param state A string representing the sprite state.
+	 * @param frame The index in the sprite's animation.
+	 * @param dir   The direction in which the sprite is facing.
+	 * @return The image, or null if not defined.
+	 */
+	public BufferedImage getImage(String state, int frame, int dir)
+	{
+		// Try to get the state
+		SpriteState st = states.get(state);
+		if(st == null) return null;
+		
+		// Try to get the frame
+		SpriteFrame fr;
+		try
+		{
+			fr = st.frames.get(frame);
+		} 
+		catch(IndexOutOfBoundsException e)
+		{
+			// If the frame doesn't exist, try frame 0, that one must
+			// always exist
+			fr = st.frames.get(0);
+		}
+		
+		BufferedImage b = fr.directions.get(dir);
+		if(b == null)
+		{
+			// If the direction doesn't exist, try direction SOUTH,
+			// that one must always exist
+			b = fr.directions.get(Directions.SOUTH);
+		}
+		
+		return b;
 	}
 	
 	private Map<String,SpriteState> states;
