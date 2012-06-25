@@ -111,14 +111,3 @@ class SpriteFrame
 	Map<Integer,BufferedImage> directions;
 	int delay; // How many 1/10th of a second will pass until the next frame
 }
-
-/**
- * Private class used to temporarily store the key-value pairs in
- * that have been stored in the PNG metadata.
- */
-class SpriteInfoBlock
-{
-	boolean indent = false; // whether this key-value pair is indented
-	String  key    = null;  // the key(left-hand side) of the pair
-	String  value  = null;  // the value(right-hand side) of the pair
-}

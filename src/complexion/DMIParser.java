@@ -256,3 +256,15 @@ public class DMIParser {
 	private BufferedImage buffer; // Image we're currently taking apart
 	private int pixel_x, pixel_y; // Current position on the image(0,0 is top-left corner)
 }
+
+
+/**
+ * Private class used to temporarily store the key-value pairs in
+ * that have been stored in the PNG metadata.
+ */
+class SpriteInfoBlock
+{
+	boolean indent = false; // whether this key-value pair is indented
+	String  key    = null;  // the key(left-hand side) of the pair
+	String  value  = null;  // the value(right-hand side) of the pair
+}
