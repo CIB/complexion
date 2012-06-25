@@ -11,7 +11,6 @@ public class Test_verb {
 		Atom A = new Atom();
 		Object[] met_args = {"Head"};
 		A.callVerb("printTest", met_args);
-
 	}
 
 }

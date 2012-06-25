@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 import complexion.resource.Sprite;
-
+import complexion.common.Utils;
 /**
  * Server-side representation of a game Atom.
  * 
@@ -41,12 +41,12 @@ public class Atom {
 		public int direction;
 		
 		
-		// A verb call to the object with Java Object args the verb itself has to sort these out.
-		// TODO: Use java reflection to call the verb with the right parameters etc.
+		// A verb call to the objects. 
+		// Now with added reflections! Verbs are no longer a special class but normal functions inside the class
 		@SuppressWarnings("rawtypes")
 		public boolean callVerb(String key,Object[] args)
 		{
-			Class[] classes = toClass(args);
+			Class[] classes = Utils.toClass(args);
 			Method func;
 			try {
 				func = this.getClass().getMethod(key,classes);
@@ -78,20 +78,9 @@ public class Atom {
 			else 
 				return false;
 		}
-		@SuppressWarnings("rawtypes")
 		public void printTest(String A)
 		{
 			System.out.println(A);
-		}
-		private Class[] toClass(Object[] args)
-		{
-			Class[] value = new Class[args.length];
-			int iter = 0;
-			for(Object A : args)
-			{
-				value[iter] = A.getClass();
-			}
-			return value;
 		}
 
 }
