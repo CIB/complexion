@@ -9,7 +9,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
-
+import org.newdawn.slick.util.BufferedImageUtil;
 /**
  * The renderer is strictly the low-level mechanism responsible for drawing
  * objects, text, widgets and so on. It should be created and managed by a
@@ -55,6 +55,7 @@ public class Renderer {
 				// Texture doesn't isn't cached yet, need to generate it
 				textures.put(buf, TextureLoader.loadTexture(buf));
 			}
+			
 			int t = this.textures.get(a.getCurrentImage());
 
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, t);
