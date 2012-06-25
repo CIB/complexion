@@ -1,6 +1,8 @@
 package complexion.server;
 
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import complexion.resource.Sprite;
@@ -44,14 +46,51 @@ public class Atom {
 		
 		// A verb call to the object with Java Object args the verb itself has to sort these out.
 		// TODO: Use java reflection to call the verb with the right parameters etc.
+		@SuppressWarnings("rawtypes")
 		boolean callVerb(String key,Object[] args)
 		{
-			if(verbs.containsKey(key))
+			Class[] classes = toClass(args);
+			Method func;
+			try {
+				func = this.getClass().getMethod(key,classes);
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+			if(func!= null)
 			{
-				verbs.get(key).run(args);
+				try {
+					func.invoke(this, args);
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				return true;
 			}
-			return false;
+			else 
+				return false;
+		}
+		@SuppressWarnings("rawtypes")
+		private Class[] toClass(Object[] args)
+		{
+			Class[] value = new Class[args.length];
+			int iter = 0;
+			for(Object A : args)
+			{
+				value[iter] = A.getClass();
+			}
+			return value;
 		}
 
 }
