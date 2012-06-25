@@ -10,10 +10,11 @@ import com.sixlegs.png.TextChunk;
 
 /**
  * A sprite consists of several different images(icon states) indexed by string, 
- * which are in turn split into several animation frames indexed by integer.
+ * which are in turn split into several animation frames indexed by integer, which
+ * are in turn split into several directions indexed by integer.
  * 
- * By supplying an icon state and an animation frame, a BufferedImage can be extracted,
- * which can be used to draw the object.
+ * By supplying an icon state, an animation frame, and a direction, a BufferedImage 
+ * can be extracted, which can be used to draw the object.
  * 
  * @author cib
  *
@@ -41,76 +42,62 @@ public class Sprite {
 	}
 	
 	/**
-	 * Internal function for parsing .dmi metadata and building this.states
-	 * from it.
-	 * 
-	 * @throws IOException
+	 * Helper function for initializing a DMIParser and using the PNG metadata
+	 * to populate the sprite states.
 	 */
-	private void parseDMI(InputStream source) throws IOException
+	private void parseDMI(InputStream stream) throws IOException
 	{
-		// Load the PNG into memory and decode it
-		PngImage load = new PngImage();
-		load.read(source, false); // do not close the input stream
+		DMIParser parser = new DMIParser();
+		parser.parse(stream);
 		
-		// Extract the text chunk containing the .dmi metadata
-		TextChunk chunk = load.getTextChunk("Description");
-		if(chunk == null) throw new IOException("File has no metadata");
-		String metadata = chunk.getText();
-		
-		// Parse the metadata
-		List<SpriteInfoBlock> nodes = parseMetadata(metadata);
-		
-		for(SpriteInfoBlock s : nodes)
-		{
-			System.out.println(s.key + "=" + s.value);
-		}
+		// extract the results
+		this.states = parser.states;
+		this.width  = parser.width;
+		this.height = parser.height;
 	}
 	
 	/**
-	 * Internal function for parsing plaintext metadata and building a kind of
-	 * abstract syntax tree from it.
+	 * Get the width of the sprite in pixels. This includes transparent/invisible areas.
+	 * Width is a constant value throughout instance lifetime.
 	 */
-	private List<SpriteInfoBlock> parseMetadata(String data) throws IOException
+	public int getWidth()
 	{
-		// Prepare a "syntax tree" to return
-		List<SpriteInfoBlock> nodes = new ArrayList<SpriteInfoBlock>();
-		
-		// Split the metadata into individual lines and parse them individually
-		String[] lines = data.split("\n");
-		
-		for(String line : lines) {
-			// If the line is all spaces, or begins with #, ignore it
-			if(line.matches("\\s*") || line.matches("#.*"))
-			{
-				continue;
-			}
-			
-			// Create a regular expression to parse lines of the type:
-			// key = value
-			Pattern pattern = Pattern.compile("(\\s*)([^\\s]+)\\s*=\\s*(.*[^\\s])\\s*");
-			Matcher matcher = pattern.matcher(line);
-			
-			// Try to match our line against the key = value pattern
-			boolean matchFound = matcher.matches();
-			if(!matchFound) throw new IOException("Malformed .DMI metadata");
-			
-			String indentation = matcher.group(1);
-			String key = matcher.group(2);
-			String value = matcher.group(3);
-			
-			SpriteInfoBlock new_block = new SpriteInfoBlock();
-			new_block.indent = (indentation.length() != 0);
-			new_block.key    = key;
-			new_block.value  = value;
-			
-			nodes.add(new_block);
-		}
-
-		return nodes;
+		return width;
+	}
+	
+	/**
+	 * Get the height of the sprite in pixels. This includes transparent/invisible areas.
+	 * Height is a constant value throughout instance lifetime.
+	 */
+	public int getHeight()
+	{
+		return height;
 	}
 
-	private Map<String,List<BufferedImage>> states;
+	private Map<String,SpriteState> states;
 	private String metadata;
+	private int width  = 0;
+	private int height = 0;
+}
+
+/**
+ * Private class used to hold a sprite state/icon state of a Sprite.
+ * This in turn may hold multiple animation frames, which in turn
+ * may hold multiple directions.
+ */
+class SpriteState
+{
+	List<SpriteFrame> frames;
+}
+
+/**
+ * Private class used to hold an animation frame of a SpriteState.
+ * This in turn may hold multiple directions.
+ */
+class SpriteFrame
+{
+	Map<Integer,BufferedImage> directions;
+	int delay; // How many 1/10th of a second will pass until the next frame
 }
 
 /**
