@@ -2,6 +2,7 @@ package complexion;
 
 import java.awt.image.BufferedImage;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.imageio.ImageIO;
 
 import static complexion.Directions.*;
 
@@ -67,7 +70,6 @@ public class DMIParser {
 		while(it.hasNext())
 		{
 			SpriteInfoBlock i = it.next();
-			System.out.println(i.key + "=" + i.value);
 			
 		    // If there's data on the line, collect it
 		    // ---------------------------------------
@@ -139,7 +141,7 @@ public class DMIParser {
             // A "state" line opens a new state
 			if(i.key.equals("state"))
 			{
-                state_name = i.value;
+                state_name = i.value.substring(1,i.value.length() - 1);
                 had_state = true;
 			}
 		}
@@ -164,6 +166,7 @@ public class DMIParser {
         {
             // Prepare a new frame to insert into our state
             SpriteFrame frame = new SpriteFrame();
+            frame.directions = new HashMap<Integer,BufferedImage>();
             
             // This array simply maps tile indices to directions.
             // For example, the first tile in the frame would be the direction SOUTH.
@@ -185,28 +188,8 @@ public class DMIParser {
                     pixel_y = pixel_y + height;
                 }
                 
-                // TODO: Actually extract the image data
-                /*uchar * frame_data = (uchar*)malloc((height*width*base->d())) ; // set up a array for the data we shall collect
-
-                for(int y = 0;y<height;y++)
-                {
-                    for(int x = 0;x<width;x++)
-                    {
-                        long loc = ((y+pixel_y) * base->w() * base->d()) + ((x+pixel_x) * base->d()); // calculate the location of the X,Y in the array
-                        uchar red = base_data[loc]; // fetch the colours
-                        uchar green = base_data[loc+1];
-                        uchar blue = base_data[loc+2];
-                        uchar alpha = base_data[loc+3];
-                        loc  = (y * width * base->d()) + (x *base->d()); // calculat the x,y in the new one
-                        frame_data[loc] = red;
-                        frame_data[loc+1] = green;
-                        frame_data[loc+2] = blue;
-                        frame_data[loc+3] = alpha;
-                    }
-                }
-                Fl_RGB_Image * img = new Fl_RGB_Image(frame_data,width,height,base->d(),base->ld()); // create the image NOTE: frame_data is only a refences make sure to malloc
-                frame.directions[next_dir] = ImageData(img);
-                */
+                BufferedImage image = buffer.getSubimage(pixel_x, pixel_y, width, height);
+                frame.directions.put(next_dir, image);
                 pixel_x += width; // push to the next "row"
 
             }

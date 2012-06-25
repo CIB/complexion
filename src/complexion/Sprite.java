@@ -1,9 +1,12 @@
 package complexion;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
+
+import javax.imageio.ImageIO;
 
 import com.sixlegs.png.PngImage;
 import com.sixlegs.png.TextChunk;
@@ -28,6 +31,15 @@ public class Sprite {
 	public Sprite(String filename) throws IOException 
 	{
 		parseDMI(new FileInputStream(filename));
+		
+		// Test code for the generated states
+		// ----------------------------------
+	    // retrieve image
+		SpriteState s = states.get("breath");
+		SpriteFrame f = s.frames.get(0);
+	    BufferedImage bi = f.directions.get(1);
+	    File outputfile = new File("D:/saved.png");
+	    ImageIO.write(bi, "png", outputfile);
 	}
 	
 	/**
@@ -73,7 +85,7 @@ public class Sprite {
 	{
 		return height;
 	}
-
+	
 	private Map<String,SpriteState> states;
 	private String metadata;
 	private int width  = 0;
