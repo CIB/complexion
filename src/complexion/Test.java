@@ -3,7 +3,6 @@ package complexion;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import static complexion.Directions.*;
 
 import javax.imageio.ImageIO;
 
