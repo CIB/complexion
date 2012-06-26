@@ -3,6 +3,8 @@ package complexion.client;
 import java.io.IOException;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
+
 import complexion.Directions;
 import complexion.Sprite;
 
@@ -28,10 +30,14 @@ public class DisplayExample {
 		for(int i=0; i<1000; i++) {
 			for(Atom a : r.atoms)
 			{
-				a.x += 1;
+				a.x += 2;
 			}
 			r.draw();
-			Thread.sleep(10);
+			Thread.sleep(1000/60);
+			
+			if(Display.isCloseRequested()){
+				break;
+			}
 		}
 	}
 }
