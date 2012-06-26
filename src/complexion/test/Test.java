@@ -14,7 +14,7 @@ public class Test {
 		Sprite s = new Sprite("mask.dmi");
 		
 	    BufferedImage bi = s.getImage("muzzle", 100, 100);
-	    File outputfile = new File("D:/saved.png");
+	    File outputfile = new File("saved.png");
 	    ImageIO.write(bi, "png", outputfile);
 	}
 }

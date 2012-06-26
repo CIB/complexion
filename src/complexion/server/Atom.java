@@ -78,9 +78,9 @@ public class Atom {
 			else 
 				return false;
 		}
-		public void printTest(String A)
+		public void printTest(String A,String B)
 		{
-			System.out.println(A);
+			System.out.println(A+B);
 		}
 
 }

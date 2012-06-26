@@ -9,6 +9,7 @@ public class Utils {
 		for(Object A : args)
 		{
 			value[iter] = A.getClass();
+			iter++;
 		}
 		return value;
 	}
