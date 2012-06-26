@@ -7,15 +7,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
-import org.newdawn.slick.util.BufferedImageUtil;
 /**
  * The renderer is strictly the low-level mechanism responsible for drawing
  * objects, text, widgets and so on. It should be created and managed by a
@@ -71,18 +67,30 @@ public class Renderer {
 			// Get the sprite dimensions
 			int width = buf.getWidth();
 			int height = buf.getHeight();
+			
+			// Check where to render the sprite on the buffer
+			int offset_x = a.x;
+			int offset_y = a.y;
+			
+			// Objects with onMap set are displayed relative to the
+			// current viewport position(scrolling)
+			if(a.onMap)
+			{
+				offset_x -= this.eye_x;
+				offset_y -= this.eye_y;
+			}
 
 			// Draw the sprite as quad
 			// TODO: Check if drawing two triangles is faster
 			GL11.glBegin(GL11.GL_QUADS);
 			GL11.glTexCoord2f(0, 0);
-			GL11.glVertex2f(a.x, a.y);
+			GL11.glVertex2f(offset_x, offset_y);
 			GL11.glTexCoord2f(1, 0);
-			GL11.glVertex2f(a.x + width, a.y);
+			GL11.glVertex2f(offset_x + width, offset_y);
 			GL11.glTexCoord2f(1, 1);
-			GL11.glVertex2f(a.x + width, a.y + height);
+			GL11.glVertex2f(offset_x + width, offset_y + height);
 			GL11.glTexCoord2f(0, 1);
-			GL11.glVertex2f(a.x, a.y + height);
+			GL11.glVertex2f(offset_x, offset_y + height);
 			GL11.glEnd();
 		}
 
@@ -98,6 +106,17 @@ public class Renderer {
 	{
 		atoms.add(a);
 		Collections.sort(atoms, new Renderer.LayerComparator());
+	}
+	
+	/**
+	 * Sets the current position of the client viewport on the map.
+	 * This will affect how Atoms with onMap = true are displaced
+	 * on the rendering window.
+	 */
+	public void setEyePos(int pos_x, int pos_y)
+	{
+		this.eye_x = pos_x;
+		this.eye_y = pos_y;
 	}
 	
 	/** 
@@ -117,4 +136,7 @@ public class Renderer {
 	// All the atoms we're currently rendering.
 	List<Atom> atoms = new ArrayList<Atom>();
 	private Map<BufferedImage, Integer> textures = new HashMap<BufferedImage, Integer>();
+	
+	// Current position of the viewport on the map
+	private int eye_x, eye_y;
 }

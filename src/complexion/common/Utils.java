@@ -8,8 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Utils {
+	/**
+	 * From a list of objects, extracts a list of corresponding classes.
+	 * @param args An arbitrary list of objects
+	 * @return A list that for each input object contains the corresponding class.
+	 */
 	@SuppressWarnings("rawtypes")
-	public static  final Class[] toClass(Object[] args)
+	public static  final Class[] toClasses(Object[] args)
 	{
 		if(args.length <= 0)
 			return new Class[0];

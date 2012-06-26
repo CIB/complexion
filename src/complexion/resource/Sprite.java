@@ -110,7 +110,6 @@ public class Sprite {
 	}
 	
 	private Map<String,SpriteState> states;
-	private String metadata;
 	private int width  = 0;
 	private int height = 0;
 }
