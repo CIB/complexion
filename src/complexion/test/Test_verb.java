@@ -1,7 +1,10 @@
 package complexion.test;
 
-import complexion.server.Atom;
+import java.util.HashMap;
+import java.util.Map;
 
+import complexion.server.Atom;
+import complexion.common.Utils;
 public class Test_verb {
 
 	/**
@@ -13,7 +16,12 @@ public class Test_verb {
 		met_args[0] = "Head";
 		met_args[1] = "Beep";
 		A.callVerb("printTest", met_args);
-		
+		Object[] con_args = {"Hey Head!"};
+		HashMap<String,Object> class_variables = new HashMap<String,Object>();
+		class_variables.put("UID", 55);
+		Object B = Utils.createClass("complexion.server.Atom",con_args,class_variables);
+		Atom C = (Atom)B;
+		System.out.print(C.UID);
 	}
 
 }
