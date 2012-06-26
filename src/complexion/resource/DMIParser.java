@@ -128,6 +128,9 @@ public class DMIParser {
             	}
             	
             	SpriteState state = generateSpriteState(state_frames, state_directions, state_delay);
+            	
+            	// intern state_name to make string comparison more efficient
+            	state_name = state_name.intern();
                 states.put(state_name, state); // add state to the sprite
 
                 state_frames = 0;
