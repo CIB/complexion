@@ -2,9 +2,15 @@ package complexion.client;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
@@ -75,6 +81,29 @@ public class Renderer {
 		}
 
 		Display.update();
+	}
+	
+	/**
+	 * Add a visible atom to the Renderer for rendering.
+	 */
+	public void addAtom(Atom a)
+	{
+		atoms.add(a);
+		Collections.sort(atoms, new Renderer.LayerComparator());
+	}
+	
+	/** 
+	 * Private class used for sorting collections by layer.
+	 */
+	private static class LayerComparator implements Comparator<Atom>
+	{
+		public int compare(Atom a1, Atom a2) {
+			// TODO: something like return Integer.compare(a1.layer,a2.layer)
+			//       would be more efficient
+			if     (a1.layer < a2.layer) return -1;
+			else if(a2.layer < a1.layer) return 1;
+			else                         return 0;
+		}
 	}
 
 	// All the atoms we're currently rendering.
