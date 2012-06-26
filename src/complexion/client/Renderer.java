@@ -58,17 +58,22 @@ public class Renderer {
 
 			// Do we have the texture cached?
 			if (!this.textures.containsKey(buf)) {
-				// Texture doesn't isn't cached yet, need to generate it
+				// Texture isn't cached yet, need to generate it
 				textures.put(buf, TextureLoader.loadTexture(buf));
 			}
 			
+			// Load cached texture
 			int t = this.textures.get(a.getCurrentImage());
 
+			// Bind cached texture
 			GL11.glBindTexture(GL11.GL_TEXTURE_2D, t);
 
+			// Get the sprite dimensions
 			int width = buf.getWidth();
 			int height = buf.getHeight();
 
+			// Draw the sprite as quad
+			// TODO: Check if drawing two triangles is faster
 			GL11.glBegin(GL11.GL_QUADS);
 			GL11.glTexCoord2f(0, 0);
 			GL11.glVertex2f(a.x, a.y);
@@ -82,6 +87,8 @@ public class Renderer {
 		}
 
 		Display.update();
+		
+		// TODO: uncache unused textures if the cache is too crowded
 	}
 	
 	/**
