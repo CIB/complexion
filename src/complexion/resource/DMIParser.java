@@ -72,7 +72,7 @@ public class DMIParser {
 		    // ---------------------------------------
             if(i.key.equals("dirs"))
             {
-            	// get the number off directions
+            	// get the number of directions
                 state_directions = Integer.parseInt(i.value); 
             }
             else if(i.key.equals("frames"))

@@ -42,13 +42,16 @@ public class DisplayExample {
 		}
 		
 		r.draw();
+		int i = 0;
 		while(true) {
 			r.draw();
 			Thread.sleep(1000/60);
+			r.setEyePos(i, 0);
 			
 			if(Display.isCloseRequested()){
 				break;
 			}
+			i++;
 		}
 	}
 }

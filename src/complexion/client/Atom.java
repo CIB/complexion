@@ -39,6 +39,10 @@ public class Atom {
 	// in complexion.Direction
 	public int direction;
 	
+	// If this is set to false, the atom will always have the same position
+	// on the viewport, rather than being tied to a map position.
+	boolean onMap = true;
+	
 	/**
 	 * @return The image currently representing the atom, given state, frame and direction.
 	 */
