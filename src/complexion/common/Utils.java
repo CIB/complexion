@@ -3,9 +3,7 @@ package complexion.common;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Utils {
 	/**
@@ -27,11 +25,19 @@ public class Utils {
 		}
 		return value;
 	}
+	/**
+	 * This functions creates a class based on classpath and decides the constructor use with args and optionally preset
+	 * fields using the map variables.
+	 * @param The class name and path ex "complexion.server.Atom"
+	 * @param args An list of arbitrary corresponding to a constructor on that class 
+	 * @param variables A map<String,Object> or Field Name:Object for example <"UID",55>
+	 * @return A object based on class and constructed with args with the fields in variables set to the value
+	 */
 	@SuppressWarnings("rawtypes")
 	public static final Object createClass(String name,Object[] args,HashMap<String,Object> variables)
 	{
 		Class<?> new_class;
-		Class[] class_args = toClass(args);
+		Class[] class_args = toClasses(args);
 		try {
 			new_class = Class.forName(name);
 		} catch (ClassNotFoundException e) {

@@ -2,8 +2,8 @@ package complexion.test;
 
 import java.util.HashMap;
 
-import complexion.server.TestAtom;
 import complexion.common.Utils;
+import complexion.server.Atom;
 public class Test_verb {
 
 	/**
