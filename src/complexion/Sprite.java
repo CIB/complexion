@@ -1,15 +1,8 @@
 package complexion;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.io.*;
 import java.util.*;
-import java.util.regex.*;
-
-import javax.imageio.ImageIO;
-
-import com.sixlegs.png.PngImage;
-import com.sixlegs.png.TextChunk;
 
 /**
  * A sprite consists of several different images(icon states) indexed by string, 
