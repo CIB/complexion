@@ -1,8 +1,10 @@
-package server;
+package complexion.server;
 
 /**
  * @author head
  * A verb class used for RPCish calling
+ * 
+ * Might become unnecessary with java reflection.
  */
 public class Verb {
 	// desc string that tells you what it those.
