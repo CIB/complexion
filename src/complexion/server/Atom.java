@@ -3,8 +3,6 @@ package complexion.server;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Map;
-
 import complexion.resource.Sprite;
 import complexion.common.Utils;
 /**
@@ -41,12 +39,20 @@ public class Atom {
 		public int direction;
 		
 		
-		// A verb call to the objects. 
-		// Now with added reflections! Verbs are no longer a special class but normal functions inside the class
+		/**
+		 * Call an atom verb with the given name(key) and arguments.
+		 * TODO: Make sure only functions we expressly make available over the network
+		 * 		 can be called this way.
+		 * 
+		 * @param key Name of the function/verb to be called.
+		 * @param args A list of objects to be passed as args. These objects will be type-checked
+		 * 			   before being passed to the function.
+		 * @return true on success, false on failure
+		 */
 		@SuppressWarnings("rawtypes")
 		public boolean callVerb(String key,Object[] args)
 		{
-			Class[] classes = Utils.toClass(args);
+			Class[] classes = Utils.toClasses(args);
 			Method func;
 			try {
 				func = this.getClass().getMethod(key,classes);
@@ -77,10 +83,6 @@ public class Atom {
 			}
 			else 
 				return false;
-		}
-		public void printTest(String A,String B)
-		{
-			System.out.println(A+B);
 		}
 
 }

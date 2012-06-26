@@ -7,15 +7,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
-import org.newdawn.slick.util.BufferedImageUtil;
 /**
  * The renderer is strictly the low-level mechanism responsible for drawing
  * objects, text, widgets and so on. It should be created and managed by a
