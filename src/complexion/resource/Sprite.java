@@ -1,8 +1,10 @@
-package complexion;
+package complexion.resource;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
+
+import complexion.common.Directions;
 
 /**
  * A sprite consists of several different images(icon states) indexed by string, 

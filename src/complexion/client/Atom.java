@@ -2,7 +2,7 @@ package complexion.client;
 
 import java.awt.image.BufferedImage;
 
-import complexion.Sprite;
+import complexion.resource.Sprite;
 
 /**
  * Client-side representation of a game Atom, that is,

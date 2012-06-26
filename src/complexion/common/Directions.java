@@ -1,4 +1,4 @@
-package complexion;
+package complexion.common;
 
 public class Directions {
 	public static final int CENTER = 0;

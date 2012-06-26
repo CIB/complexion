@@ -3,7 +3,7 @@ package complexion.server;
 
 import java.util.Map;
 
-import complexion.Sprite;
+import complexion.resource.Sprite;
 
 /**
  * Server-side representation of a game Atom.

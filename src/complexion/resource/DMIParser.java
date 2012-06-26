@@ -1,4 +1,4 @@
-package complexion;
+package complexion.resource;
 
 import java.awt.image.BufferedImage;
 
@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static complexion.Directions.*;
+import static complexion.common.Directions.*;
 
 import com.sixlegs.png.PngImage;
 import com.sixlegs.png.TextChunk;

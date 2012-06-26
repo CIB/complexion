@@ -1,4 +1,4 @@
-package complexion.client;
+package complexion.test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -7,8 +7,10 @@ import java.util.Collections;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 
-import complexion.Directions;
-import complexion.Sprite;
+import complexion.client.Atom;
+import complexion.client.Renderer;
+import complexion.common.Directions;
+import complexion.resource.Sprite;
 
 public class DisplayExample {
 	public static void main(String[] argv) throws IOException, InterruptedException, LWJGLException {
@@ -44,10 +46,6 @@ public class DisplayExample {
 		
 		r.draw();
 		while(true) {
-			for(Atom a : r.atoms)
-			{
-				//a.x += 2;
-			}
 			r.draw();
 			Thread.sleep(1000/60);
 			

@@ -1,4 +1,4 @@
-package complexion;
+package complexion.common;
 
 public class Vector {
 	int x;
