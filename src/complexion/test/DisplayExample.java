@@ -22,8 +22,8 @@ public class DisplayExample {
 			a.frame = 0;
 			a.sprite_state = "muzzle";
 			a.sprite = s;
-			a.x = 10+x*32;
-			a.y = 10+y*32;
+			a.tile_x = x;
+			a.tile_y = y;
 			a.layer = 0;
 			r.addAtom(a);
 		}
@@ -35,8 +35,8 @@ public class DisplayExample {
 			a.frame = 0;
 			a.sprite_state = "muzzle";
 			a.sprite = s;
-			a.x = 10+x*32;
-			a.y = 10+y*32;
+			a.tile_x = x;
+			a.tile_y = y;
 			a.layer = 2;
 			r.addAtom(a);
 		}
