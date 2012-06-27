@@ -12,6 +12,8 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
+
+import complexion.common.Config;
 /**
  * The renderer is strictly the low-level mechanism responsible for drawing
  * objects, text, widgets and so on. It should be created and managed by a
@@ -69,8 +71,8 @@ public class Renderer {
 			int height = buf.getHeight();
 			
 			// Check where to render the sprite on the buffer
-			int offset_x = a.x;
-			int offset_y = a.y;
+			int offset_x = a.tile_x * Config.tileWidth + a.pixel_x;
+			int offset_y = a.tile_y * Config.tileWidth + a.pixel_y;
 			
 			// Objects with onMap set are displayed relative to the
 			// current viewport position(scrolling)
