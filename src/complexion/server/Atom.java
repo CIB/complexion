@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import complexion.resource.Sprite;
 import complexion.common.Utils;
+import complexion.common.Verb;
 /**
  * Server-side representation of a game Atom.
  * 
@@ -54,6 +55,7 @@ public class Atom {
 		{
 			System.out.println(msg);
 		}
+		
 		public Atom() {
 			// TODO Auto-generated constructor stub
 		}
@@ -73,24 +75,32 @@ public class Atom {
 				e.printStackTrace();
 				return false;
 			}
-			if(func!= null)
+			// if @Verb does not exist fail nicely and don't allow it to be called.
+			if(func.getAnnotation(Verb.class) == null)
+			{
+				System.err.println(key+" method is not in the verbs list!.. error at line 80 in Atom.callVerb");
+				return false;
+			}
+			if(func != null)
 			{
 				try {
 					func.invoke(this, args);
 				} catch (IllegalArgumentException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					return false;
 				} catch (IllegalAccessException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					return false;
 				} catch (InvocationTargetException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					return false;
 				}
 				return true;
 			}
-			else 
-				return false;
+			return false; //Apparently this is dead code?
 		}
 
 }
