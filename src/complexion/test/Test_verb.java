@@ -24,7 +24,7 @@ public class Test_verb {
 		class_variables.put("UID", 55);
 		Object B = Utils.createClass("complexion.server.Atom",con_args,class_variables);
 		Atom C = (Atom)B;
-		System.out.print(C.UID);
+		System.out.print(C.getUID());
 
 	}
 
