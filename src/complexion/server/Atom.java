@@ -136,7 +136,10 @@ public class Atom {
 		{
 			return this.getTile().getY();
 		}
-		
+		public void Tick()
+		{
+			
+		}
 
 
 		public Atom(String msg)
