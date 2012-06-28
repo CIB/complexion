@@ -87,10 +87,10 @@ public class Chunk
 	 * Get the tile at the specified tile-position(NOT pixel-position)
 	 * Returns null if Tile is past map boundaries.
 	 */
-	public Tile getTile(int world_x,int world_y)
+	public Tile getTile(int pos_x,int pos_y)
 	{
-		int x = world_x % getWidth(); // ????
-		int y = world_y % getHeight(); // MATHS IS GEWD
+		int x = pos_x / getWidth(); // ????
+		int y = pos_y / getHeight(); // MATHS IS GEWD
 		if(x >= 50 || y >= 50)
 			return null;
 		Tile T = contents[x][y];
