@@ -22,7 +22,4 @@ public class Zlevel {
 	{
 		return map[pos_x][pos_y];
 	}
-	
-	// TODO: Create a getTileRange function which will get a list of tiles
-	//       within a specific range
 }
