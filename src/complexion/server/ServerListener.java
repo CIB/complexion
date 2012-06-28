@@ -18,7 +18,7 @@ public class ServerListener
 	 * @param port The port to host the server on.
 	 * @throws IOException 
 	 */
-	public ServerListener(Server server, short port) throws IOException
+	public ServerListener(Server server, int port) throws IOException
 	{
 		// Create the server(huge name needed due to naming conflict)
 		com.esotericsoftware.kryonet.Server server_socket = 
