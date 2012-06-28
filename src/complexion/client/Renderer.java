@@ -121,6 +121,14 @@ public class Renderer {
 		this.eye_y = pos_y;
 	}
 	
+	/**
+	 * Destroy the renderer and rendering window.
+	 */
+	public void destroy()
+	{
+		Display.destroy();
+	}
+	
 	/** 
 	 * Private class used for sorting collections by layer.
 	 */
@@ -134,6 +142,7 @@ public class Renderer {
 			else                         return 0;
 		}
 	}
+	
 
 	// All the atoms we're currently rendering.
 	List<Atom> atoms = new ArrayList<Atom>();

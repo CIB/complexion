@@ -1,5 +1,9 @@
 package complexion.client;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.lwjgl.LWJGLException;
 
 /**
@@ -28,6 +32,19 @@ public class Client {
 	 */
 	public Client(String[] args)
 	{
+		// Try to log into a preconfigured server.
+		// This should become a user dialog later.
+		try {
+			connection = new ServerConnection(this, InetAddress.getByName("localhost"), 1024);
+			System.out.println(connection.login("CIB", "password"));
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		// Initialize the client window.
 		try {
 			renderer = new Renderer();
@@ -35,7 +52,10 @@ public class Client {
 			Client.notifyError("Error setting up program window.. Exiting.",e);
 			System.exit(1); // Exit with 1 to signify that an error occured
 		}
+		
+		renderer.destroy();
 	}
 	
 	private Renderer renderer;
+	private ServerConnection connection;
 }

@@ -3,31 +3,39 @@ package complexion.server;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import com.esotericsoftware.kryonet.*;
+
+import complexion.network.message.LoginAccepted;
 import complexion.network.message.LoginRequest;
+import complexion.network.message.RegisterClasses;
 
 /**
  * This class is responsible for managing network connections.
  * It will mostly be responsible for accepting and creating new
  * connections.
  */
-public class ServerListener 
+public class ServerListener extends Listener
 {
 	/**
-	 * Create a new MasterConnection, which will automatically
+	 * Create a new ServerListener, which will automatically
 	 * bind a TCP socket to localhost
 	 * @param port The port to host the server on.
 	 * @throws IOException 
 	 */
-	public ServerListener(Server server, short port) throws IOException
+	public ServerListener(Server server, int port) throws IOException
 	{
+		// Remember the server we were created from
+		this.server = server;
+		
 		// Create the server(huge name needed due to naming conflict)
-		com.esotericsoftware.kryonet.Server server_socket = 
+		server_socket = 
 				new com.esotericsoftware.kryonet.Server();
 		
-		// Register our custom listener
-		server_socket.addListener(new CIListener(this));
+		// Setup message classes for transfer.
+		RegisterClasses.registerClasses(server_socket.getKryo());
 		
-		// Start listening on a separate thread
+		// Register our custom listener
+		server_socket.addListener(this);
+		server_socket.bind(port);
 		server_socket.start();
 	}
 	
@@ -43,6 +51,7 @@ public class ServerListener
 	 * requests into a thread-safe structure, and having the master controller
 	 * poll this structure.
 	 */
+	@Override
 	public void received(Connection connection, Object object)
 	{
 		// Check if this is the first message from that connection.
@@ -72,6 +81,13 @@ public class ServerListener
 				if(server.handleLoginRequest(request.account_name, request.password))
 				{
 					login_success = true; // We're good, bro
+
+					// Notify the client that the login was successful
+					connection.sendTCP(new LoginAccepted());
+					
+					// Finish initializing the client.
+					new_client.account_name = request.account_name;
+					new_client.connection = new ClientConnection(new_client, connection);
 				}
 			}
 			
@@ -83,30 +99,7 @@ public class ServerListener
 		}
 	}
 	
+	/// The game server instance this listener was crated from.
 	private Server server;
-}
-
-/**
- * Private class, only used to redirect incoming messages to another function.
- */
-class CIListener extends Listener
-{
-	/**
-	 * Simply initialize the listener with the given master.
-	 */
-	public CIListener(ServerListener master)
-	{
-		this.master = master;
-	}
-	
-	/**
-	 * Simply redirect the message to the master connection.
-	 */
-	public void received(Connection connection, Object object)
-	{
-		master.received(connection,object);
-	}
-	
-	
-	private ServerListener master;
+	private com.esotericsoftware.kryonet.Server server_socket;
 }
