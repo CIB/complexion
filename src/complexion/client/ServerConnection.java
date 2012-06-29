@@ -13,7 +13,7 @@ import complexion.network.message.RegisterClasses;
  * It will mostly be responsible for accepting and creating new
  * connections.
  */
-public class ServerConnection 
+public class ServerConnection extends Listener
 {
 	/**
 	 * Create a new ServerConnection, which will automatically
@@ -30,33 +30,12 @@ public class ServerConnection
 		// Start the connection and connect to the server
 		connection = 
 				new com.esotericsoftware.kryonet.Client();
-		connection.addListener(new CIListener(this));
+		connection.addListener(this);
 		connection.start();
 		connection.connect(5000, address, port);
 		
 		// Setup message classes for transfer.
 		RegisterClasses.registerClasses(connection.getKryo());
-	}
-	
-
-	/**
-	 * Handle the incoming message.
-	 * 
-	 * Note that this will be running in a separate thread. Thus, all operations
-	 * performed from this function(and its descendends) must either operate on local
-	 * values, or operate on threadsafe calls.
-	 * 
-	 * Anything interacting with game-world data must be done  by writing 
-	 * requests into a thread-safe structure, and having the master controller
-	 * poll this structure.
-	 */
-	public void received(Connection connection, Object object)
-	{
-		if(object instanceof LoginAccepted)
-		{
-			this.loggedIn = true;
-		}
-		System.out.println(object.getClass());
 	}
 	
 	/**
@@ -87,6 +66,27 @@ public class ServerConnection
 		return true;
 	}
 	
+	/**
+	 * Handle the incoming message.
+	 * 
+	 * Note that this will be running in a separate thread. Thus, all operations
+	 * performed from this function(and its descendends) must either operate on local
+	 * values, or operate on threadsafe calls.
+	 * 
+	 * Anything interacting with game-world data must be done  by writing 
+	 * requests into a thread-safe structure, and having the master controller
+	 * poll this structure.
+	 */
+	@Override
+	public void received(Connection connection, Object object)
+	{
+		if(object instanceof LoginAccepted)
+		{
+			this.loggedIn = true;
+		}
+		System.out.println(object.getClass());
+	}
+	
 	/// Private var to check whether we're logged in.
 	private boolean loggedIn = false;
 	
@@ -95,30 +95,4 @@ public class ServerConnection
 	
 	/// TCP connection we're using.
 	private com.esotericsoftware.kryonet.Client connection;
-}
-
-/**
- * Private class, only used to redirect incoming messages to another function.
- */
-class CIListener extends Listener
-{
-	/**
-	 * Simply initialize the listener with the given master.
-	 */
-	public CIListener(ServerConnection master)
-	{
-		this.master = master;
-	}
-	
-	/**
-	 * Simply redirect the message to the master connection.
-	 */
-	@Override
-	public void received(Connection connection, Object object)
-	{
-		master.received(connection,object);
-	}
-	
-	
-	private ServerConnection master;
 }

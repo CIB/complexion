@@ -13,7 +13,7 @@ import complexion.network.message.RegisterClasses;
  * It will mostly be responsible for accepting and creating new
  * connections.
  */
-public class ServerListener 
+public class ServerListener extends Listener
 {
 	/**
 	 * Create a new ServerListener, which will automatically
@@ -34,7 +34,7 @@ public class ServerListener
 		RegisterClasses.registerClasses(server_socket.getKryo());
 		
 		// Register our custom listener
-		server_socket.addListener(new CIListener(this));
+		server_socket.addListener(this);
 		server_socket.bind(port);
 		server_socket.start();
 	}
@@ -51,6 +51,7 @@ public class ServerListener
 	 * requests into a thread-safe structure, and having the master controller
 	 * poll this structure.
 	 */
+	@Override
 	public void received(Connection connection, Object object)
 	{
 		// Check if this is the first message from that connection.
@@ -92,32 +93,7 @@ public class ServerListener
 		}
 	}
 	
+	/// The game server instance this listener was crated from.
 	private Server server;
 	private com.esotericsoftware.kryonet.Server server_socket;
-}
-
-/**
- * Private class, only used to redirect incoming messages to another function.
- */
-class CIListener extends Listener
-{
-	/**
-	 * Simply initialize the listener with the given master.
-	 */
-	public CIListener(ServerListener master)
-	{
-		this.master = master;
-	}
-	
-	/**
-	 * Simply redirect the message to the master connection.
-	 */
-	@Override
-	public void received(Connection connection, Object object)
-	{
-		master.received(connection,object);
-	}
-	
-	
-	private ServerListener master;
 }
