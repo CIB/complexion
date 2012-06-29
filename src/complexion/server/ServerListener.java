@@ -3,7 +3,10 @@ package complexion.server;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import com.esotericsoftware.kryonet.*;
+
+import complexion.network.message.LoginAccepted;
 import complexion.network.message.LoginRequest;
+import complexion.network.message.RegisterClasses;
 
 /**
  * This class is responsible for managing network connections.
@@ -13,21 +16,26 @@ import complexion.network.message.LoginRequest;
 public class ServerListener 
 {
 	/**
-	 * Create a new MasterConnection, which will automatically
+	 * Create a new ServerListener, which will automatically
 	 * bind a TCP socket to localhost
 	 * @param port The port to host the server on.
 	 * @throws IOException 
 	 */
 	public ServerListener(Server server, int port) throws IOException
 	{
+		// Remember the server we were created from
+		this.server = server;
+		
 		// Create the server(huge name needed due to naming conflict)
-		com.esotericsoftware.kryonet.Server server_socket = 
+		server_socket = 
 				new com.esotericsoftware.kryonet.Server();
+		
+		// Setup message classes for transfer.
+		RegisterClasses.registerClasses(server_socket.getKryo());
 		
 		// Register our custom listener
 		server_socket.addListener(new CIListener(this));
-		
-		// Start listening on a separate thread
+		server_socket.bind(port);
 		server_socket.start();
 	}
 	
@@ -71,6 +79,7 @@ public class ServerListener
 				LoginRequest request = (LoginRequest) object;
 				if(server.handleLoginRequest(request.account_name, request.password))
 				{
+					connection.sendTCP(new LoginAccepted());
 					login_success = true; // We're good, bro
 				}
 			}
@@ -84,6 +93,7 @@ public class ServerListener
 	}
 	
 	private Server server;
+	private com.esotericsoftware.kryonet.Server server_socket;
 }
 
 /**
