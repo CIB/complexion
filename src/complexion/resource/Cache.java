@@ -36,6 +36,29 @@ public class Cache {
 		return rval;
 	}
 	
+	/**
+	 * Returns a map which maps resource file identifiers to CRC's.
+	 * This can be used to determine which resource objects need to be sent
+	 * to the client.
+	 * 
+	 * The HashMap will normally be serialized and sent over the network.
+	 * 
+	 * @return A HashMap that maps resource file identifiers to CRC's
+	 */
+	public static HashMap<String,Long> getCRCMap()
+	{
+		// Create a hashmap as return value and populate it with
+		// entries of key - hashID
+		HashMap<String,Long> rval = new HashMap<String,Long>();
+		for(String key : resourceByString.keySet())
+		{
+			Resource resource = resourceByString.get(key);
+			rval.put(key, resource.hashID);
+		}
+		
+		return rval;
+	}
+	
 	/// Uniquely maps filenames to resource objects 
 	private static HashMap<String,Resource> resourceByString =
 			new HashMap<String,Resource>();

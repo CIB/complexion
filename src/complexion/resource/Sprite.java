@@ -3,6 +3,7 @@ package complexion.resource;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
+import java.util.zip.CRC32;
 
 import complexion.common.Directions;
 
@@ -27,6 +28,8 @@ public class Sprite extends Resource {
 	{
 		// Remember the filename
 		this.filename = filename;
+		// Generate a CRC from the file on disk
+		this.hashID = getCRC32(filename);
 		
 		parseDMI(new FileInputStream(filename));
 	}

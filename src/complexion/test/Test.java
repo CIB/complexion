@@ -17,5 +17,7 @@ public class Test {
 	    BufferedImage bi = s.getImage("muzzle", 100, 100);
 	    File outputfile = new File("saved.png");
 	    ImageIO.write(bi, "png", outputfile);
+	    
+	    System.out.println(Cache.getCRCMap());
 	}
 }
