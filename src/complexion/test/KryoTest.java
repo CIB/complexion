@@ -1,10 +1,9 @@
 package complexion.test;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
-import complexion.server.ServerListener;
 import complexion.server.Server;
+import complexion.server.ServerListener;
 
 public class KryoTest {
 	public static void main(String[] args) throws IOException, InterruptedException

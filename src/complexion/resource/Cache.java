@@ -3,6 +3,8 @@ package complexion.resource;
 import java.io.IOException;
 import java.util.HashMap;
 
+import complexion.network.message.SendResourceHashes;
+
 
 /**
  * This class caches resource files and ensures that only one resource of the
@@ -37,15 +39,15 @@ public class Cache {
 	}
 	
 	/**
-	 * Returns a map which maps resource file identifiers to CRC's.
+	 * Returns an object which maps resource file identifiers to CRC's.
 	 * This can be used to determine which resource objects need to be sent
 	 * to the client.
 	 * 
-	 * The HashMap will normally be serialized and sent over the network.
+	 * The object will normally be serialized and sent over the network.
 	 * 
-	 * @return A HashMap that maps resource file identifiers to CRC's
+	 * @return A network object which describes all files and their CRC's
 	 */
-	public static HashMap<String,Long> getCRCMap()
+	public static SendResourceHashes getCRCMap()
 	{
 		// Create a hashmap as return value and populate it with
 		// entries of key - hashID
@@ -56,7 +58,10 @@ public class Cache {
 			rval.put(key, resource.hashID);
 		}
 		
-		return rval;
+		// Generate a network object and pack the resource hashes into it.
+		SendResourceHashes network_object = new SendResourceHashes();
+		network_object.filenameToCRC = rval;
+		return network_object;
 	}
 	
 	/// Uniquely maps filenames to resource objects 

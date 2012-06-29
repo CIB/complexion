@@ -11,5 +11,6 @@ public class RegisterClasses {
 	{
 		kryo.register(LoginRequest.class);
 		kryo.register(LoginAccepted.class);
+		kryo.register(SendResourceHashes.class);
 	}
 }

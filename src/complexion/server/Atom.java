@@ -3,8 +3,9 @@ package complexion.server;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import complexion.resource.Sprite;
+
 import complexion.common.Utils;
+import complexion.resource.Sprite;
 /**
  * Server-side representation of a game Atom.
  * 

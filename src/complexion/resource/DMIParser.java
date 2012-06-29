@@ -1,7 +1,15 @@
 package complexion.resource;
 
-import java.awt.image.BufferedImage;
+import static complexion.common.Directions.EAST;
+import static complexion.common.Directions.NORTH;
+import static complexion.common.Directions.NORTHEAST;
+import static complexion.common.Directions.NORTHWEST;
+import static complexion.common.Directions.SOUTH;
+import static complexion.common.Directions.SOUTHEAST;
+import static complexion.common.Directions.SOUTHWEST;
+import static complexion.common.Directions.WEST;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -11,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static complexion.common.Directions.*;
 
 import com.sixlegs.png.PngImage;
 import com.sixlegs.png.TextChunk;

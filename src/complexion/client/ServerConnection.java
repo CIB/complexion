@@ -2,8 +2,9 @@ package complexion.client;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import com.esotericsoftware.kryonet.*;
 
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.Listener;
 import complexion.network.message.LoginAccepted;
 import complexion.network.message.LoginRequest;
 import complexion.network.message.RegisterClasses;

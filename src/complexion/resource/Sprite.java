@@ -1,9 +1,11 @@
 package complexion.resource;
 
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.*;
-import java.util.zip.CRC32;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 import complexion.common.Directions;
 
