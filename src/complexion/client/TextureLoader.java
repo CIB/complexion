@@ -9,9 +9,17 @@ import org.lwjgl.opengl.GL12;
 
 import static org.lwjgl.opengl.GL11.*;
 
+/**
+ * Static class responsible for texture loading.
+ * Code taken from http://stackoverflow.com/questions/10801016/lwjgl-textures-and-strings
+ */
 public class TextureLoader {
 	private static final int BYTES_PER_PIXEL = 4;// 3 for RGB, 4 for RGBA
 
+	/**
+	 * Takes a BufferedImage, loads it into the OpenGL texture cache,
+	 * and returns the texture ID.
+	 */
 	public static int loadTexture(BufferedImage image) {
 
 		int[] pixels = new int[image.getWidth() * image.getHeight()];

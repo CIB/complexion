@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="lib" path="lib/javapng-2.0.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/lwjgl.jar">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="lib/native/windows"/>
@@ -10,5 +9,8 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/lwjgl_util.jar"/>
 	<classpathentry kind="lib" path="lib/slick-util.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/kryo-2.16-all.jar"/>
+	<classpathentry kind="lib" path="lib/kryonet-2.12-all.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
