@@ -9,6 +9,9 @@ public class Client
 	/// Identifies the client in the (as of yet non-existent)
 	/// login system
 	String account_name;
+	
+	/// The TCP connection this client uses.
+	ClientConnection connection;
 
 	public String getAccountName() {
 		return account_name;

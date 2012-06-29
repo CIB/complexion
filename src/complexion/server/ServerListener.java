@@ -80,8 +80,14 @@ public class ServerListener extends Listener
 				LoginRequest request = (LoginRequest) object;
 				if(server.handleLoginRequest(request.account_name, request.password))
 				{
-					connection.sendTCP(new LoginAccepted());
 					login_success = true; // We're good, bro
+
+					// Notify the client that the login was successful
+					connection.sendTCP(new LoginAccepted());
+					
+					// Finish initializing the client.
+					new_client.account_name = request.account_name;
+					new_client.connection = new ClientConnection(new_client, connection);
 				}
 			}
 			

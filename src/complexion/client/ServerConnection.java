@@ -83,8 +83,8 @@ public class ServerConnection extends Listener
 		if(object instanceof LoginAccepted)
 		{
 			this.loggedIn = true;
+			connection.sendTCP(new LoginAccepted());
 		}
-		System.out.println(object.getClass());
 	}
 	
 	/// Private var to check whether we're logged in.
