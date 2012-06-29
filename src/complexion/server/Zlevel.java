@@ -32,6 +32,7 @@ public class Zlevel {
 		}
 	}
 	/**
+	 * @param pos_x : the world x postion of the tile
 	 * Get the tile at the specified tile-position(NOT pixel-position)
 	 * Returns null if Tile is past map boundaries. or the chunk is not present.
 	 */
@@ -41,5 +42,16 @@ public class Zlevel {
 		if(chunk == null)
 			return null;
 		return chunk.getTile(pos_x, pos_y);
+	}
+	/**
+	 * Returns the chunk at the global x,y
+	 * @param global_x
+	 * @param global_y
+	 * @return
+	 */
+	Chunk getChunk(int global_x,int global_y)
+	{
+		Chunk chunk = map[global_x / level_width][global_y / level_height];
+		return chunk;
 	}
 }
