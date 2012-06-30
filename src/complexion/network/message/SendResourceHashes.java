@@ -10,5 +10,6 @@ import java.util.HashMap;
  *
  */
 public class SendResourceHashes {
+	public SendResourceHashes(){};
 	public HashMap<String,Long> filenameToCRC;
 }
