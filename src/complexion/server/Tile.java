@@ -1,12 +1,15 @@
 package complexion.server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Tile extends Atom {
-	// TODO: Add a public contents variable
-	//		 (Not sure yet which type we're going to use
-	//		  where BYOND uses lists)
 	
 	///The x/y location of the tile on the map.
 	private int x, y;
+	
+	/// A package-private list of all the contents of the tile
+	List<Atom> contents = new ArrayList<Atom>();
 
 	/**
 	 * @return The x location of the tile.
@@ -47,5 +50,15 @@ public class Tile extends Atom {
 	public Atom getTile()
 	{
 		return this;
+	}
+	
+	/**
+	 * @return A list of all the atoms contained directly in the tile. Does not include contents of the contents.
+	 * 		   Modifying this list will not affect the atom.
+	 */
+	public List<Atom> getContents()
+	{
+		// Copy the list to make sure it's not modified.
+		return new ArrayList<Atom>(contents);
 	}
 }
