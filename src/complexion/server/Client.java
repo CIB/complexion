@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
-import complexion.network.message.FullAtomUpdate;
 
 /**
  * This class represents a single client connected to the server.

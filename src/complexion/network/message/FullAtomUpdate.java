@@ -1,5 +1,8 @@
 package complexion.network.message;
 
+import complexion.client.Atom;
+import complexion.resource.Cache;
+
 /** Resend all the data about the atom.
  * 
  * This will be the standard update method for sending new atoms.
@@ -19,4 +22,18 @@ public class FullAtomUpdate extends AtomUpdate {
 	
 	/// The coordinates of the object on the map.
 	public int pos_x, pos_y, pos_z;
+	
+	/**
+	 * Load this update into a client atom, updating its data.
+	 * @param into   The atom which to update with the new data.
+	 */
+	public void updateClientAtom(complexion.client.Atom into)
+	{
+		into.direction = this.direction;
+		into.sprite = Cache.getSprite(this.sprite);
+		into.sprite_state = this.sprite_state;
+		into.tile_x = this.pos_x;
+		into.tile_y = this.pos_y;
+		into.UID    = this.UID;
+	}
 }

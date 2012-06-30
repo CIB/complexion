@@ -3,8 +3,14 @@ package complexion.client;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.lwjgl.LWJGLException;
+
+import complexion.network.message.AtomUpdate;
+import complexion.network.message.FullAtomUpdate;
+import complexion.resource.Cache;
 
 /**
  * Class representing the entire client application, and global
@@ -56,6 +62,39 @@ public class Client {
 		renderer.destroy();
 	}
 	
+	/**
+	 * Process a single AtomUpdate type object to add it to the map/add a new object.
+	 * @param data The AtomUpdate to process.
+	 */
+	private void processAtomUpdate(AtomUpdate data)
+	{
+		// Check if the atom already exists
+		boolean exists = atomsByUID.containsKey(data.UID);
+		
+		// Check the type of the AtomUpdate
+		if(data instanceof FullAtomUpdate)
+		{
+			FullAtomUpdate full = (FullAtomUpdate) data;
+			if(exists)
+			{
+				// Atom already exists, update it
+				Atom old = atomsByUID.get(full.UID);
+				
+				// Load the entire data of the atom update into the existing atom
+				full.updateClientAtom(old);
+			}
+			else
+			{
+				// The atom doesn't exist yet, create it
+				Atom atom = new Atom();
+				full.updateClientAtom(atom);
+			}
+		}
+	}
+	
 	private Renderer renderer;
 	private ServerConnection connection;
+	
+	/// Maps Atom UID's to the respective atoms
+	private Map<Integer,Atom> atomsByUID = new HashMap<Integer,Atom>();
 }
