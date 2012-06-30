@@ -5,8 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import complexion.common.Utils;
-import complexion.resource.Sprite;
 import complexion.common.Verb;
+import complexion.resource.Sprite;
 
 /**
  * Server-side representation of a game Atom.
