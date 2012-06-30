@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import complexion.common.Utils;
 import complexion.common.Verb;
 import complexion.network.message.FullAtomUpdate;
+import complexion.resource.Cache;
 import complexion.resource.Sprite;
 
 /**
@@ -22,7 +23,6 @@ public class Atom {
 		//       and providing getters/setters instead
 
 		/// Sprite the object is currently associated with.
-		// TODO: get/set for this
 		private Sprite sprite;  
 		
 		/// Determines whether the object will be rendered above or
@@ -32,12 +32,24 @@ public class Atom {
 		/// Each sprite has multiple states, which are more or less
 		/// sprites of their own. sprite_state determines which state
 		/// is used.
-		// TODO: get/set for this
 		private String sprite_state;
 		
 		// TODO: Add a way for the server to restart an animation
 		//       (similar to the BYOND flick proc)
 		
+		/** Fetch the filename associated with the atom's current sprite.
+		 */
+		public String getSprite() {
+			return sprite.filename;
+		}
+		
+		/** Set the atom's sprite to the given filename.
+		 * @param sprite Filename of the sprite to use, e.g. mask.dmi
+		 */
+		public void setSprite(String sprite) {
+			this.sprite = Cache.getSprite(sprite);
+		}
+
 		/// A sprite can define different appearances depending on the
 		/// direction. This variable should be one of the constants defined
 		/// in complexion.Directions
@@ -172,23 +184,6 @@ public class Atom {
 		public Atom() 
 		{
 			// TODO Auto-generated constructor stub
-		}
-		
-		/** @return A FullAtomUpdate object which can be used to fully transmit 
-		 *  data relevant to the client.
-		 */
-		public FullAtomUpdate buildFullAtomUpdate()
-		{
-			FullAtomUpdate data = new FullAtomUpdate();
-			data.direction = (byte) this.getDirection(); // a downcast is okay, directions are never large
-			data.layer = this.getLayer();
-			data.pos_x = this.getX();
-			data.pos_y = this.getY();
-			data.sprite = this.sprite.filename;
-			data.sprite_state = this.sprite_state;
-			data.UID = this.UID;
-			
-			return data;
 		}
 
 		/**

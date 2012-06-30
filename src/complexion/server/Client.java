@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
+import complexion.network.message.FullAtomUpdate;
 
 /**
  * This class represents a single client connected to the server.
@@ -77,10 +78,10 @@ public class Client
 				{
 					// Extract the turf at the given tile
 					Tile turf = server.getTile(x, y, 0);
-					delta.updates.add(turf.buildFullAtomUpdate());
+					delta.updates.add(new FullAtomUpdate(turf));
 					for(Atom content : turf.contents)
 					{
-						delta.updates.add(content.buildFullAtomUpdate());
+						delta.updates.add(new FullAtomUpdate(turf));
 					}
 				}
 			}

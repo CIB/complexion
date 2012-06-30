@@ -23,6 +23,24 @@ public class FullAtomUpdate extends AtomUpdate {
 	/// The coordinates of the object on the map.
 	public int pos_x, pos_y, pos_z;
 	
+
+	/** Build a FullAtomUpdate object from a server Atom. This can then be used to transfer
+	 *  data about a server atom over the network.
+	 * 
+	 *  @return A FullAtomUpdate object which can be used to fully transmit 
+	 *  data relevant to the client.
+	 */
+	public FullAtomUpdate(complexion.server.Atom atom)
+	{
+		this.direction = (byte) atom.getDirection(); // a downcast is okay, directions are never large
+		this.layer = atom.getLayer();
+		this.pos_x = atom.getX();
+		this.pos_y = atom.getY();
+		this.sprite = atom.getSprite();
+		this.sprite_state = atom.getSpriteState();
+		this.UID = atom.getUID();
+	}
+	
 	/**
 	 * Load this update into a client atom, updating its data.
 	 * @param into   The atom which to update with the new data.
