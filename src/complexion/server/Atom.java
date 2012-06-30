@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 
 import complexion.common.Utils;
 import complexion.common.Verb;
+import complexion.network.message.FullAtomUpdate;
 import complexion.resource.Sprite;
 
 /**
@@ -26,7 +27,6 @@ public class Atom {
 		
 		/// Determines whether the object will be rendered above or
 		/// below other objects
-		// TODO: get/set for this
 		private int layer;
 		
 		/// Each sprite has multiple states, which are more or less
@@ -138,6 +138,26 @@ public class Atom {
 		{
 			return this.getTile().getY();
 		}
+		
+		
+		/**
+		 * @return A value representing at which layer(below or above other objects)
+		 * 		   this atom should be rendered.
+		 */
+		public int getLayer() {
+			return layer;
+		}
+	
+		/**
+		 * @param layer Sets a value that determines whether this object will be rendered above
+		 * 				or below other atoms.
+		 */
+		public void setLayer(int layer) {
+			this.layer = layer;
+		}
+
+		/** Function which is periodically called to process this atom.
+		 */
 		public void Tick()
 		{
 			
@@ -152,6 +172,23 @@ public class Atom {
 		public Atom() 
 		{
 			// TODO Auto-generated constructor stub
+		}
+		
+		/** @return A FullAtomUpdate object which can be used to fully transmit 
+		 *  data relevant to the client.
+		 */
+		public FullAtomUpdate buildFullAtomUpdate()
+		{
+			FullAtomUpdate data = new FullAtomUpdate();
+			data.direction = (byte) this.getDirection(); // a downcast is okay, directions are never large
+			data.layer = this.getLayer();
+			data.pos_x = this.getX();
+			data.pos_y = this.getY();
+			data.sprite = this.sprite.filename;
+			data.sprite_state = this.sprite_state;
+			data.UID = this.UID;
+			
+			return data;
 		}
 
 		/**
@@ -218,7 +255,7 @@ public class Atom {
 				e.printStackTrace();
 				return false;
 			}
-		return true;
-	}
+			return true;
+		}
 
 }

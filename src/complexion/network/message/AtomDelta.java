@@ -19,8 +19,8 @@ public class AtomDelta {
 	public ArrayList<AtomUpdate> updates;
 	
 	/// Center of the client viewport
-	int eye_x, eye_y;
+	public int eye_x, eye_y;
 	
 	// Viewrange of the client
-	int viewrange;
+	public int viewrange;
 }

@@ -1,7 +1,10 @@
 package complexion.server;
 
+import java.util.List;
+
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import complexion.network.message.AtomDelta;
 
 /**
  * This class represents a single TCP connection to a client.
@@ -22,6 +25,9 @@ public class ClientConnection extends Listener {
 	{
 		// Remember the client this connection is associated with.
 		this.client = client;
+		
+		// Remember the connection this client has been created with
+		this.connection = connection;
 		
 		// Cause the connection to call this class' received method
 		connection.addListener(this);
@@ -49,5 +55,14 @@ public class ClientConnection extends Listener {
 		System.out.println("ClientConnection: "+message);
 	}
 	
+	/**
+	 * Send an object to the respective remote client.
+	 */
+	public void send(Object o)
+	{
+		this.connection.sendTCP(o);
+	}
+	
 	private Client client;
+	private Connection connection;
 }
