@@ -78,10 +78,15 @@ public class Client
 				{
 					// Extract the turf at the given tile
 					Tile turf = server.getTile(x, y, 0);
-					delta.updates.add(new FullAtomUpdate(turf));
-					for(Atom content : turf.contents)
+					
+					// Make sure the turf actually exists
+					if(turf != null)
 					{
 						delta.updates.add(new FullAtomUpdate(turf));
+						for(Atom content : turf.contents)
+						{
+							delta.updates.add(new FullAtomUpdate(turf));
+						}
 					}
 				}
 			}

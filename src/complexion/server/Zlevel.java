@@ -15,6 +15,28 @@ public class Zlevel {
 	private Chunk[][] map;
 	private int chunk_width = 50;
 	private int chunk_height = 50;
+	private int z;
+	
+	/** Create a new Zlevel and initialize its chunks.
+	 * @param z The z coordinate of the z-level
+	 */
+	public Zlevel(int z)
+	{
+		// Remember the z-level
+		this.z = z;
+		
+		// Create the array to store the chunks in
+		map = new Chunk[chunk_width][chunk_height];
+		
+		// Populate the chunk array
+		for(int x=0;x<chunk_width;x++)
+		{
+			for(int y =0;y<chunk_height;y++)
+			{
+				map[x][y] = new Chunk(x,y,z);
+			}
+		}
+	}
 
 	/**
 	 * Processes all chunks on the zlevel that are active.

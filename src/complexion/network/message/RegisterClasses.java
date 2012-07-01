@@ -1,5 +1,7 @@
 package complexion.network.message;
 
+import java.util.ArrayList;
+
 import com.esotericsoftware.kryo.Kryo;
 
 /**
@@ -12,5 +14,8 @@ public class RegisterClasses {
 		kryo.register(LoginRequest.class);
 		kryo.register(LoginAccepted.class);
 		kryo.register(SendResourceHashes.class);
+		kryo.register(FullAtomUpdate.class);
+		kryo.register(AtomDelta.class);
+		kryo.register(ArrayList.class);
 	}
 }

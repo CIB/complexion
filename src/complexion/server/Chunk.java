@@ -17,6 +17,18 @@ public class Chunk
 
 	/// if the chunk is active
 	private boolean active = false;
+	
+	/** Initialize the chunk.
+	 * 
+	 * @param x The global x chunk index at which the chunk starts.
+	 * @param y The global y chunk index at which the chunk starts.
+	 * @param z The global z chunk index at which the chunk starts.
+	 */
+	public Chunk(int x, int y, int z)
+	{
+		contents = new Tile[chunk_size_width][chunk_size_height];
+	}
+	
 	/**
 	 * @return the chunks X location on the zlevel
 	 */
