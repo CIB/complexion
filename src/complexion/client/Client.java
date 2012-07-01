@@ -1,13 +1,17 @@
 package complexion.client;
 
 import java.io.IOException;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.opengl.Display;
 
+import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
 import complexion.network.message.FullAtomUpdate;
 import complexion.resource.Cache;
@@ -19,7 +23,8 @@ import complexion.resource.Cache;
 public class Client {
 	public static void main(String[] args)
 	{
-		Client client = new Client(args);
+		// This will start the client program and loop indefinitely
+		new Client(args);
 	}
 	
 	/**
@@ -34,7 +39,7 @@ public class Client {
 	}
 	
 	/**
-	 * Client program initialization.
+	 * Client program initialization and loop.
 	 */
 	public Client(String[] args)
 	{
@@ -57,6 +62,30 @@ public class Client {
 		} catch (LWJGLException e) {
 			Client.notifyError("Error setting up program window.. Exiting.",e);
 			System.exit(1); // Exit with 1 to signify that an error occured
+		}
+		
+		// Intercept and process AtomDelta's
+		while(!Display.isCloseRequested())
+		{
+			try {
+				Thread.sleep(5);
+			} catch (InterruptedException e) {
+				// Just ignore and continue
+			}
+			
+			// Get a delta from the queue
+			AtomDelta delta = atomDeltas.poll();
+			if(delta != null)
+			{
+				// Process the individual updates
+				for(AtomUpdate update : delta.updates)
+				{
+					this.processAtomUpdate(update);
+				}
+			}
+			
+			// Re-render the widget
+			renderer.draw();
 		}
 		
 		renderer.destroy();
@@ -88,6 +117,11 @@ public class Client {
 				// The atom doesn't exist yet, create it
 				Atom atom = new Atom();
 				full.updateClientAtom(atom);
+				
+				// Add the created atom to our atom cache, and also
+				// to the renderer.
+				atomsByUID.put(data.UID, atom);
+				renderer.addAtom(atom);
 			}
 		}
 	}
@@ -97,4 +131,9 @@ public class Client {
 	
 	/// Maps Atom UID's to the respective atoms
 	private Map<Integer,Atom> atomsByUID = new HashMap<Integer,Atom>();
+	
+	/// A private queue of AtomDeltas which have been incoming.
+	/// TODO: Make sure the AtomDelta's are sorted by their respective tick
+	ConcurrentLinkedQueue<AtomDelta> atomDeltas =
+			new ConcurrentLinkedQueue<AtomDelta>();
 }

@@ -117,6 +117,10 @@ public class Server {
 		for(Map.Entry<Connection, Client> entry : clientsByIP.entrySet())
 		{
 			Client client = entry.getValue();
+			
+			// Check if the client has a connection; If not, it's not ready.
+			if(client.connection == null) continue;
+			
 			client.synchronizeAtoms(this);
 		}
 	}

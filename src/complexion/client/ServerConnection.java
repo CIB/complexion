@@ -5,6 +5,8 @@ import java.net.InetAddress;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+
+import complexion.network.message.AtomDelta;
 import complexion.network.message.LoginAccepted;
 import complexion.network.message.LoginRequest;
 import complexion.network.message.RegisterClasses;
@@ -85,6 +87,12 @@ public class ServerConnection extends Listener
 		{
 			this.loggedIn = true;
 			connection.sendTCP(new LoginAccepted());
+		}
+		else if(object instanceof AtomDelta)
+		{
+			// If it's an AtomDelta, push it into client.atomDeltas and
+			// allow the main thread to process it.
+			client.atomDeltas.add((AtomDelta) object);
 		}
 	}
 	
