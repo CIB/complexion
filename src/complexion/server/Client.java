@@ -69,7 +69,7 @@ public class Client
 		if(delta.eye_x != last_x || delta.eye_y != last_y || resendEverything)
 		{
 			// TODO: comment this out when a method has been added to detect it when atoms have changed
-			//resendEverything = false;
+			resendEverything = false;
 			
 			// For now, simply resend everything
 			
@@ -93,11 +93,42 @@ public class Client
 					}
 				}
 			}
-			
-			// TODO: Resend the tiles in the viewrange that have already been sent,
-			//		 but have changed since then.
-			
 		}
+		else
+		{
+			// We're not resending everything, so let's find out if any of our atoms changed at all.
+			
+			// Scan over all the atoms and see if they're outdated
+			for(int x=delta.eye_x - view_range; x<=delta.eye_x + view_range; x++)
+			{
+				for(int y=delta.eye_y - view_range; y<=delta.eye_y + view_range; y++)
+				{
+					// Extract the turf at the given tile
+					Tile turf = server.getTile(x, y, 0);
+					
+					// Make sure the turf actually exists
+					if(turf != null)
+					{
+						// TODO: discriminate between the different outdated types
+						if(turf.outdated != 0)
+						{
+							turf.outdated = 0;
+							delta.updates.add(new FullAtomUpdate(turf));
+						}
+						for(Atom content : turf.contents)
+						{
+							if(content.outdated != 0)
+							{
+								turf.outdated = 0;
+								delta.updates.add(new FullAtomUpdate(content));
+							}
+						}
+					}
+				}
+			}
+		}
+		// TODO: Resend the tiles in the viewrange that have already been sent,
+		//		 but have changed since then.
 		
 		// Send the atom updates to the remote client.
 		connection.send(delta);
