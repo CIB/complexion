@@ -69,8 +69,16 @@ public class Server {
 		while(true)
 		{
 			server.nextTick();
+			if(server.getTick() % 50 < 25)
+			{
+				test_tile.setSpriteState("owl");
+			}
+			else
+			{
+				test_tile.setSpriteState("muzzle");
+			}
 			try {
-				Thread.sleep(10);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				// Just continue ^^
 			}

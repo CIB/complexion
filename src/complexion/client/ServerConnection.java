@@ -93,9 +93,6 @@ public class ServerConnection extends Listener
 			// If it's an AtomDelta, push it into client.atomDeltas and
 			// allow the main thread to process it.
 			client.atomDeltas.add((AtomDelta) object);
-			
-			int numberAtoms = ((AtomDelta) object).updates.size();
-			if(numberAtoms > 0) System.out.println("Got delta with "+numberAtoms+" atoms");
 		}
 	}
 	

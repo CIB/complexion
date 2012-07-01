@@ -68,7 +68,8 @@ public class Client
 		//		 which part of the viewrange is new, and which is old
 		if(delta.eye_x != last_x || delta.eye_y != last_y || resendEverything)
 		{
-			resendEverything = false;
+			// TODO: comment this out when a method has been added to detect it when atoms have changed
+			//resendEverything = false;
 			
 			// For now, simply resend everything
 			
