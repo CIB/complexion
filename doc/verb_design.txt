@@ -1,0 +1,40 @@
+Challenge: A client may at any time try to interact with any object on their screen by clicking on it.
+           (There may be different methods of clicking, such as left/right/middle, or shift+click etc.)
+
+This may bring up one of several responses:
+1. A verb selection menu(e.g. a pie menu)
+2. A customized dialog(such as an item selection dialog when you click a vendor)
+3. A game-mechanic response(such as a door opening when you push a button)
+
+
+1.
+Verbs would simply be a list of strings and parameter types for the object. When clicking the object, you can select one string, enter the parameters, and the verb will be sent as request to the server.
+
+2.
+Dialogs would be typical GUI widgets like you see in regular applications. They would be fully customizable through classes, and these classes would be sent to the client. 
+
+For example, if one designed a computer with an input bar and a "turn off" button, these elements would not have to be sent individually to the client. Instead, the client would just have a class "Computer Screen", and the server would be able to tell the client to open this class. From there on, "Computer Screen" would have client-side logic responsible for processing input and synchronizing it with the server. For example, if the user hits the "turn off" button, the client would be able to intercept that press directly, and replace the "turn off" label with a "turn on" one. This would greatly increase responsiveness for client-side interfaces. (It might be sensible to also implement this behavior for client-side "atoms", i.e. HUDs)
+
+
+3.
+Stuff like pressing buttons would not really need special logic at all. The Click would just be sent to the server, and the server could then intercept it and do gamelogic stuff that doesn't involve directly communicating with the client(if door.sprite_state is changed, that change will transmit automagically).
+
+
+The control flow for clicking would go as follows:
+- The user clicks an atom
+- The client logic intercepts the click, and sends it as input event to the server
+- The server first looks for verbs associated with the click. If there are any, it sends a verb selection widget to the client.
+- If there are no verbs associated with the click type, atom.Clicked() is invoked.
+- atom.Clicked() may do anything, really. If it wants to, it can call client.openDialog(ID, params,...) (or something along those lines)
+
+The control flow for verbs would go as follows:
+- The client can select any verb they please
+- Once a verb is selected, the client can specify each of the parameters of the verb(text, number, list selection, etc.)
+- While the client is using a verb, the server will register it, and if the verb becomes unavailable, the server will send a message to close the verb dialog
+
+The control flow for dialogs would go as follows:
+- The server makes a call to create the dialog with certain params
+- The dialog on the client-side can intercept input events and handle them
+- The dialog can push data to the server at any time by doing a sort of RPC, which will be defined  either on the parent Atom or on a server-side instance of the dialog
+- The server can push data to the client dialog at any time by doing an RPC which will be defined on the client-dialog itself
+- The dialog will be closed by the server the moment it couldn't be opened anymore(e.g. when the mob moves away from the computer)
