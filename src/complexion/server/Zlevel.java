@@ -61,4 +61,10 @@ public class Zlevel {
 	{
 		return map[pos_x / chunk_width][pos_y / chunk_height].getTile(pos_x, pos_y);
 	}
+	/** Overwrite the tile at the specified tile position with the given tile.
+	 */
+	void setTile(int x, int y, Tile tile)
+	{
+		map[x / chunk_width][y / chunk_height].setTile(x, y, tile);
+	}
 }

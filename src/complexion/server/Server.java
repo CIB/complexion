@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import com.esotericsoftware.kryonet.Connection;
+import complexion.common.Directions;
 
 /**
  * Server class containing all global definitions for a specific server instance.
@@ -39,6 +40,12 @@ public class Server {
 		{
 			server.map[z] = new Zlevel(z);
 		}
+		
+		// Add a sample object
+		Tile test_tile = new Tile(server,1,1,0);
+		test_tile.setSprite("mask.dmi");
+		test_tile.setSpriteState("muzzle");
+		test_tile.setDirection(Directions.SOUTH);
 		
 		// Start server networking
 		try {
@@ -117,12 +124,18 @@ public class Server {
 		for(Map.Entry<Connection, Client> entry : clientsByIP.entrySet())
 		{
 			Client client = entry.getValue();
-			
 			// Check if the client has a connection; If not, it's not ready.
 			if(client.connection == null) continue;
 			
 			client.synchronizeAtoms(this);
 		}
+	}
+	
+	/** Overwrite the tile at the specified tile position with the given tile.
+	 */
+	public void setTile(int x, int y, int z, Tile tile)
+	{
+		map[z].setTile(x, y, tile);
 	}
 
 	// TODO: Create a getTileRange function which will get a list of tiles

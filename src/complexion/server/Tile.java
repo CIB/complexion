@@ -10,6 +10,18 @@ public class Tile extends Atom {
 	
 	/// A package-private list of all the contents of the tile
 	List<Atom> contents = new ArrayList<Atom>();
+	
+	/** Tiles must always be created with an associated map coordinate.
+	 *  After having been created, the tile can not been moved.
+	 */
+	public Tile(Server server, int x, int y, int z)
+	{
+		this.x = x;
+		this.y = y;
+		
+		// Overwrite the existing tile.
+		server.setTile(x, y, z, this);
+	}
 
 	/**
 	 * @return The x location of the tile.

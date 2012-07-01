@@ -66,8 +66,10 @@ public class Client
 		
 		// TODO: rather than resend everything when anything changed, try to somehow figure out
 		//		 which part of the viewrange is new, and which is old
-		if(delta.eye_x != last_x || delta.eye_y != last_y)
+		if(delta.eye_x != last_x || delta.eye_y != last_y || resendEverything)
 		{
+			resendEverything = false;
+			
 			// For now, simply resend everything
 			
 			// Iterate over all the atoms in the given range
@@ -105,8 +107,13 @@ public class Client
 	private Atom eye;
 	
 	/// Describes how far the client can see from her eye in each direction.
-	private int view_range = 0;
+	private int view_range = 8;
 	
 	/// The last viewport(center and size) that was sent to the client
-	int last_x, last_y, last_z, last_view_range;
+	private int last_x, last_y, last_z, last_view_range;
+	
+	/// Force the synchronization handler to resend all atoms.
+	/// This flag will be automatically cleared once everything has been sent.
+	/// Set to true by default, because on the first tick everything should be resent.
+	private boolean resendEverything = true;
 }

@@ -14,7 +14,6 @@ import org.lwjgl.opengl.Display;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
 import complexion.network.message.FullAtomUpdate;
-import complexion.resource.Cache;
 
 /**
  * Class representing the entire client application, and global
@@ -122,6 +121,8 @@ public class Client {
 				// to the renderer.
 				atomsByUID.put(data.UID, atom);
 				renderer.addAtom(atom);
+				
+				System.out.println("Adding atom!");
 			}
 		}
 	}

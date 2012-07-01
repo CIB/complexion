@@ -23,6 +23,7 @@ public class FullAtomUpdate extends AtomUpdate {
 	/// The coordinates of the object on the map.
 	public int pos_x, pos_y, pos_z;
 	
+	public FullAtomUpdate() {};
 
 	/** Build a FullAtomUpdate object from a server Atom. This can then be used to transfer
 	 *  data about a server atom over the network.

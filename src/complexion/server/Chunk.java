@@ -103,12 +103,32 @@ public class Chunk
 	{
 		int x = world_x % getWidth(); // ????
 		int y = world_y % getHeight(); // MATHS IS GEWD
-		if(x >= 50 || y >= 50)
+		if(x >= chunk_size_width || y >= chunk_size_height || x < 0 || y < 0)
+		{
 			return null;
+		}
 		Tile T = contents[x][y];
 		return T;
 		
 	}
+	
+	/** Overwrite the tile at the specified tile position with the given tile.
+	 */
+	void setTile(int x, int y, Tile tile)
+	{
+		// Extract the position within the chunk
+		x = x % getWidth();
+		y = y % getHeight();
+		
+		// Make sure the tile is within bounds
+		if( x >= chunk_size_width || y >= chunk_size_height)
+		{
+			return;
+		}
+		
+		contents[x][y] = tile;
+	}
+	
 	/**
 	 * Processes all tiles in the chunk. Calls Tile.Tick that properly should process its contents.
 	 */
