@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 
 import complexion.common.Utils;
 import complexion.common.Verb;
-import complexion.network.message.FullAtomUpdate;
 import complexion.resource.Cache;
 import complexion.resource.Sprite;
 

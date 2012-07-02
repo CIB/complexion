@@ -1,7 +1,6 @@
 package complexion.client;
 
 import java.io.IOException;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -121,8 +120,6 @@ public class Client {
 				// to the renderer.
 				atomsByUID.put(data.UID, atom);
 				renderer.addAtom(atom);
-				
-				System.out.println("Adding atom!");
 			}
 		}
 	}

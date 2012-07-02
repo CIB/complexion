@@ -127,8 +127,6 @@ public class Client
 				}
 			}
 		}
-		// TODO: Resend the tiles in the viewrange that have already been sent,
-		//		 but have changed since then.
 		
 		// Send the atom updates to the remote client.
 		connection.send(delta);

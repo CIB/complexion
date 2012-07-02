@@ -1,6 +1,5 @@
 package complexion.network.message;
 
-import complexion.client.Atom;
 import complexion.resource.Cache;
 
 /** Resend all the data about the atom.

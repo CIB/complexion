@@ -48,6 +48,7 @@ public class Tile extends Atom {
 	/**
 	 * Changed from Atom so that if loc does get set somehow then it still returns null.
 	 * If it's not set then it would do the same thing, but be faster this way.
+	 * @param new_loc the new location of the Atom
 	 * @return null
 	 */
 	public Atom getLoc()

@@ -5,7 +5,6 @@ import java.net.InetAddress;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-
 import complexion.network.message.AtomDelta;
 import complexion.network.message.LoginAccepted;
 import complexion.network.message.LoginRequest;

@@ -1,10 +1,7 @@
 package complexion.server;
 
-import java.util.List;
-
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import complexion.network.message.AtomDelta;
 
 /**
  * This class represents a single TCP connection to a client.

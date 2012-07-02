@@ -11,6 +11,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.minlog.Log;
+
+import complexion.common.Console;
 import complexion.common.Directions;
 
 /**
@@ -33,6 +36,8 @@ public class Server {
 	public static void main(String[] args)
 	{
 		Server server = new Server();
+		
+		Log.set(Log.LEVEL_DEBUG);
 		
 		// Generate all the Zlevels for the map and store them in this.map
 		server.map = new Zlevel[height];
@@ -57,13 +62,8 @@ public class Server {
 		
 		// Create a window so that the application can be closed
 		// This is for debugging only
-		JFrame frame = new JFrame("Complexion Server");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		JLabel emptyLabel = new JLabel("");
-		emptyLabel.setPreferredSize(new Dimension(400, 100));
-		frame.getContentPane().add(emptyLabel, BorderLayout.CENTER);
-		frame.pack();
-		frame.setVisible(true);
+		Console console = new Console();
+		console.run();
 		
 		// Run the world in a loop
 		while(true)
