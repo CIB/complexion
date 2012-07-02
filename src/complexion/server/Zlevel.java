@@ -53,32 +53,49 @@ public class Zlevel {
 		}
 	}
 	/**
-	 * @param pos_x : the world x postion of the tile
+	 * @param pos_x : the world x position of the tile
+	 * @param pos_y : the world y position of the tile
+	 * @param pos_z : the world z position of the tile
 	 * Get the tile at the specified tile-position(NOT pixel-position)
 	 * Returns null if Tile is past map boundaries. or the chunk is not present.
 	 */
 	Tile getTile(int pos_x,int pos_y)
 	{
-		Chunk chunk = map[pos_x / level_width][pos_y / level_height];
-		if(chunk == null)
-			return null;
+		Chunk chunk = getChunk(pos_x, pos_y);
+		if(chunk == null) return null;
+		
 		return chunk.getTile(pos_x, pos_y);
 	}
-	/**
-	 * Returns the chunk at the global x,y
-	 * @param global_x
-	 * @param global_y
-	 * @return
-	 */
-	Chunk getChunk(int global_x,int global_y)
-	{
-		Chunk chunk = map[global_x / level_width][global_y / level_height];
-		return chunk;
-	}
+	
 	/** Overwrite the tile at the specified tile position with the given tile.
 	 */
 	void setTile(int x, int y, Tile tile)
 	{
-		map[x / level_width][y / level_height].setTile(x, y, tile);
+		Chunk chunk = getChunk(x, y);
+		if(chunk == null) return;
+		
+		chunk.setTile(x, y, tile);
+	}
+	
+	/**
+	 * Returns the chunk that contains the tile at (x,y)
+	 * @param x Global tile coordinate on the x-axis
+	 * @param y Global tile coordinate on the y-axis
+	 * @return
+	 */
+	Chunk getChunk(int x, int y)
+	{
+		// Attempt to extract the chunk at the given index
+		try
+		{
+			// Find the chunk that contains the tile at (x,y)
+			Chunk chunk = map[x / Chunk.width][y / Chunk.height];
+			return chunk;
+		}
+		catch(NullPointerException e)
+		{
+			// If the chunk was outside the bounds, return null
+			return null;
+		}
 	}
 }

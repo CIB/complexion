@@ -92,11 +92,28 @@ public class Server {
 	 */
 	public Tile getTile(int pos_x, int pos_y, int pos_z)
 	{
-		Zlevel zl = map[pos_z];
+		// Make sure the position exists
+		if(pos_z > map.length || pos_z < 0)
+		{
+			return null;
+		}
 		
-		if(zl == null) return null;
+		return map[pos_z].getTile(pos_x, pos_y);
+	}
+	
+	/** Overwrite the tile at the specified tile position with the given tile.
+	 * @param x,y,z Position on the map where the tile will be inserted.
+	 * @param tile  Tile to be inserted into the map.
+	 */
+	public void setTile(int x, int y, int z, Tile tile)
+	{
+		// Make sure the position exists
+		if(z > map.length || z < 0)
+		{
+			return;
+		}
 		
-		return zl.getTile(pos_x, pos_y);
+		map[z].setTile(x, y, tile);
 	}
 	
 	/**
@@ -137,13 +154,6 @@ public class Server {
 			
 			client.synchronizeAtoms(this);
 		}
-	}
-	
-	/** Overwrite the tile at the specified tile position with the given tile.
-	 */
-	public void setTile(int x, int y, int z, Tile tile)
-	{
-		map[z].setTile(x, y, tile);
 	}
 
 	// TODO: Create a getTileRange function which will get a list of tiles
