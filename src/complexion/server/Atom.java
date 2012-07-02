@@ -3,6 +3,7 @@ package complexion.server;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import complexion.common.Utils;
 import complexion.common.Verb;
@@ -50,6 +51,8 @@ public class Atom {
 		/// is used.
 		private String sprite_state;
 		
+		
+		private List<Atom> contents;
 		// TODO: Add a way for the server to restart an animation
 		//       (similar to the BYOND flick proc)
 		
@@ -143,7 +146,9 @@ public class Atom {
 		 */
 		public void setLoc(Atom new_loc)
 		{
+			location.contents.remove(this);
 			location = new_loc;
+			new_loc.contents.add(this);
 			this.outdated |= Atom.positionOutdated;
 		}
 		
@@ -152,10 +157,29 @@ public class Atom {
 		 */
 		public Atom getTile()
 		{
-			Atom tile = this;
-			// Loops down to the bottom of wherever this atom is
-			while((tile = tile.getLoc()) != null){}
-			return tile;
+			if(this instanceof Tile)
+			{
+				return (Tile)this;
+			}
+			else
+			{
+				Tile tile = null;
+				Atom cur_loc = this.getLoc();
+				while(tile == null)
+				{
+					if(cur_loc == null) // if we have null here we have problems
+						return null; // so lets just quit out. TODO: Error message?
+					if(cur_loc instanceof Tile)
+					{
+						tile = (Tile) cur_loc;break;
+					}
+					else
+						cur_loc = cur_loc.getLoc();
+				}
+				if(tile != null)
+					return tile;
+			}
+			return null;
 		}
 		
 		/**

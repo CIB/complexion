@@ -8,11 +8,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
 import complexion.network.message.FullAtomUpdate;
+import complexion.network.message.InputData;
 
 /**
  * Class representing the entire client application, and global
@@ -81,7 +83,13 @@ public class Client {
 					this.processAtomUpdate(update);
 				}
 			}
-			
+			while(Keyboard.next() && Display.isVisible())
+			{
+				int key = Keyboard.getEventKey();
+				boolean state = Keyboard.getEventKeyState();
+				InputData data = new InputData(key,state);
+				connection.send(data);
+			}
 			// Re-render the widget
 			renderer.draw();
 		}

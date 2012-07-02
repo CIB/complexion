@@ -94,7 +94,12 @@ public class ServerConnection extends Listener
 			client.atomDeltas.add((AtomDelta) object);
 		}
 	}
-	
+	public void send(Object data)
+	{
+		if(!connection.isConnected())
+			return;
+		connection.sendTCP(data);
+	}
 	/// Private var to check whether we're logged in.
 	private boolean loggedIn = false;
 	

@@ -31,7 +31,7 @@ public class Server {
 	{
 		Server server = new Server();
 		
-		Log.set(Log.LEVEL_DEBUG);
+		Log.set(Log.LEVEL_TRACE);
 		
 		// Generate all the Zlevels for the map and store them in this.map
 		server.map = new Zlevel[height];
