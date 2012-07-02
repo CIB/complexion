@@ -1,18 +1,12 @@
 package complexion.server;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
-
 import complexion.common.Console;
 import complexion.common.Directions;
 

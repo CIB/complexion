@@ -75,6 +75,13 @@ public class Atom {
 		/// What this is located inside
 		/// If this is at the bottom of the tile then it should not be assigned to anything
 		private Atom location;
+
+		public Atom() 
+		{
+			// Assign the atom a unique UID
+			lastUID++;
+			this.UID = lastUID;
+		}
 		
 		/**
 		 * @return The UID of this atom.
@@ -134,7 +141,6 @@ public class Atom {
 		 * 
 		 * @param new_loc The new location of the atom.
 		 */
-		// TODO: Make this do whatever stuff is required for the updates to be sent to client.
 		public void setLoc(Atom new_loc)
 		{
 			location = new_loc;
@@ -192,12 +198,30 @@ public class Atom {
 		{
 			
 		}
-
-		public Atom() 
+		
+		/** Event handler evoked when the user clicks this Atom.
+		 * 
+		 *  This function is called by the network handler when the client clicks an object
+		 *  with the mouse.
+		 *  
+		 *  If any verbs are registered for this mouse button/key combination, Clicked() will not be called,
+		 *  but instead a verb list will be sent to the client.
+		 *  
+		 * @param mouseButton LWJGL representation of the mouse button that was used to click the object.
+		 * @param keyboardKey LWJGL representation of a key that was held down while clicking, or 0 if none.
+		 */
+		public void Clicked(int mouseButton, int keyboardKey)
 		{
-			// Assign the atom a unique UID
-			lastUID++;
-			this.UID = lastUID;
+			
+		}
+		
+		/** Event handler evoked when the user drags another atom onto this atom.
+		 * 
+		 * @param from The atom from which the mouse was dragged.
+		 */
+		public void Dragged(Atom from)
+		{
+			
 		}
 
 		/**
