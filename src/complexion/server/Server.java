@@ -46,11 +46,21 @@ public class Server {
 			current.map[z] = new Zlevel(z);
 		}
 		
-		// Add a sample object
-		Tile test_tile = new Tile(server,1,1,0);
-		test_tile.setSprite("mask.dmi");
-		test_tile.setSpriteState("muzzle");
-		test_tile.setDirection(Directions.SOUTH);
+		for(int x=0; x<10; x++) for(int y=0;y<10;y++)
+		{
+			// Add a sample object
+			Tile test_tile = new Tile(current,x,y,0);
+			test_tile.setSprite("floors.dmi");
+			test_tile.setSpriteState("floor");
+			test_tile.setDirection(Directions.SOUTH);
+			test_tile.setLayer(0);
+		}
+		
+		Movable test_mover = new Movable();
+		test_mover.setSprite("mask.dmi");
+		test_mover.setSpriteState("muzzle");
+		test_mover.setLayer(10);
+		test_mover.Move(current.getTile(1, 1, 0));
 		
 		// Start server networking
 		try {
@@ -71,11 +81,13 @@ public class Server {
 			current.nextTick();
 			if(current.getTick() % 50 < 25)
 			{
-				test_tile.setSpriteState("owl");
+				test_mover.setSpriteState("owl");
+				test_mover.Move(current.getTile(2, 1, 0));
 			}
 			else
 			{
-				test_tile.setSpriteState("muzzle");
+				//test_mover.setSpriteState("muzzle");
+				test_mover.Move(current.getTile(3, 1, 0));
 			}
 			try {
 				Thread.sleep(100);

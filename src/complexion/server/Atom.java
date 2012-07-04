@@ -3,6 +3,8 @@ package complexion.server;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import complexion.common.Utils;
 import complexion.common.Verb;
@@ -50,12 +52,17 @@ public class Atom {
 		/// is used.
 		private String sprite_state;
 		
+		/// A package-private list of all the contents of the object
+		List<Atom> contents = new ArrayList<Atom>();
+		
 		// TODO: Add a way for the server to restart an animation
 		//       (similar to the BYOND flick proc)
 		
 		/** Fetch the filename associated with the atom's current sprite.
 		 */
 		public String getSprite() {
+			if(sprite == null) return null;
+			
 			return sprite.filename;
 		}
 		
@@ -143,8 +150,16 @@ public class Atom {
 		 */
 		public void setLoc(Atom new_loc)
 		{
+			if(location != null) 
+			{
+				location.contents.remove(this);
+			}
 			location = new_loc;
 			this.outdated |= Atom.positionOutdated;
+			if(new_loc != null)
+			{
+				new_loc.contents.add(this);
+			}
 		}
 		
 		/**
@@ -190,6 +205,16 @@ public class Atom {
 		public void setLayer(int layer) {
 			this.layer = layer;
 			this.outdated |= Atom.positionOutdated;
+		}
+		
+		/**
+		 * @return A list of all the atoms contained directly in the tile. Does not include contents of the contents.
+		 * 		   Modifying this list will not affect the atom.
+		 */
+		public List<Atom> getContents()
+		{
+			// Copy the list to make sure it's not modified.
+			return new ArrayList<Atom>(contents);
 		}
 
 		/** Function which is periodically called to process this atom.

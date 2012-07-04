@@ -8,9 +8,6 @@ public class Tile extends Atom {
 	///The x/y location of the tile on the map.
 	private int x, y;
 	
-	/// A package-private list of all the contents of the tile
-	List<Atom> contents = new ArrayList<Atom>();
-	
 	/** Tiles must always be created with an associated map coordinate.
 	 *  After having been created, the tile can not be moved.
 	 */
@@ -85,15 +82,5 @@ public class Tile extends Atom {
 	public void Entered(Movable mover)
 	{
 		return;
-	}
-	
-	/**
-	 * @return A list of all the atoms contained directly in the tile. Does not include contents of the contents.
-	 * 		   Modifying this list will not affect the atom.
-	 */
-	public List<Atom> getContents()
-	{
-		// Copy the list to make sure it's not modified.
-		return new ArrayList<Atom>(contents);
 	}
 }

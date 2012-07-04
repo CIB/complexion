@@ -88,7 +88,7 @@ public class Client
 						delta.updates.add(new FullAtomUpdate(turf));
 						for(Atom content : turf.contents)
 						{
-							delta.updates.add(new FullAtomUpdate(turf));
+							delta.updates.add(new FullAtomUpdate(content));
 						}
 					}
 				}

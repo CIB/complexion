@@ -53,6 +53,9 @@ public class Renderer {
 		for (Atom a : atoms) {
 			// Try to get a texture for our atom from its sprite
 			BufferedImage buf = a.getCurrentImage();
+			
+			// Check if the image exists
+			if(buf == null) continue;
 
 			// Do we have the texture cached?
 			if (!this.textures.containsKey(buf)) {
