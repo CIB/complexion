@@ -23,4 +23,7 @@ public class AtomDelta {
 	
 	// Viewrange of the client
 	public int viewrange;
+	
+	// World tick on which the atom was sent.
+	public int tick;
 }

@@ -89,9 +89,11 @@ public class ServerConnection extends Listener
 		}
 		else if(object instanceof AtomDelta)
 		{
-			// If it's an AtomDelta, push it into client.atomDeltas and
-			// allow the main thread to process it.
-			client.atomDeltas.add((AtomDelta) object);
+			// If it's an AtomDelta, put it into client.atomDeltas and
+			// allow the main thread to process it. We'll be sorting it
+			// into its specified tick.
+			AtomDelta delta = (AtomDelta) object;
+			client.atomDeltas.put(delta.tick, delta);
 		}
 	}
 	

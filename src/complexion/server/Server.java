@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.minlog.Log;
+
+import complexion.common.Config;
 import complexion.common.Console;
 import complexion.common.Directions;
 
@@ -90,7 +92,7 @@ public class Server {
 				test_mover.Move(current.getTile(3, 1, 0));
 			}
 			try {
-				Thread.sleep(100);
+				Thread.sleep(Config.tickLag);
 			} catch (InterruptedException e) {
 				// Just continue ^^
 			}
@@ -164,7 +166,7 @@ public class Server {
 			// Check if the client has a connection; If not, it's not ready.
 			if(client.connection == null) continue;
 			
-			client.synchronizeAtoms(this);
+			client.synchronizeAtoms();
 		}
 	}
 

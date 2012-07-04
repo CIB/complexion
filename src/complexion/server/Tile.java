@@ -1,7 +1,5 @@
 package complexion.server;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class Tile extends Atom {
 	

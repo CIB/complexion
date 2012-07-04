@@ -3,13 +3,17 @@ package complexion.client;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 
+import complexion.common.Config;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
 import complexion.network.message.FullAtomUpdate;
@@ -66,20 +70,50 @@ public class Client {
 		while(!Display.isCloseRequested())
 		{
 			try {
-				Thread.sleep(5);
+				// TODO: if too many deltas have stacked up, try to catch up
+				//       by waiting shorter
+				Thread.sleep(Config.tickLag);
 			} catch (InterruptedException e) {
 				// Just ignore and continue
 			}
 			
-			// Get a delta from the queue
-			AtomDelta delta = atomDeltas.poll();
-			if(delta != null)
+			// Check if we need to initialize the ticker.
+			if(tick == -1)
 			{
-				// Process the individual updates
-				for(AtomUpdate update : delta.updates)
+				// Look for the first tick we can get.
+				ArrayList<Integer> keys = new ArrayList<Integer>(atomDeltas.keySet());
+				Collections.sort(keys);
+				
+				// Check if a first tick exists at all.
+				if(keys.size() > 0)
 				{
-					this.processAtomUpdate(update);
+					// Extract the key(tick) of the first tick.
+					int firstTick = keys.get(0);
+					
+					// Make this our global tick.
+					this.tick = firstTick;
 				}
+			}
+			
+			// If we have a tick initialized, that means we're connected,
+			// so start processing incoming AtomDelta's
+			if(tick != -1)
+			{
+				// Get a delta from the queue
+				AtomDelta delta = atomDeltas.get(tick);
+				if(delta != null)
+				{
+					// Process the individual updates
+					for(AtomUpdate update : delta.updates)
+					{
+						this.processAtomUpdate(update);
+					}
+					tick++;
+				}
+				// TODO: remove all atomdelta's that are older than the current tick
+				
+				// TODO: make sure we're not waiting forever for the tick to come
+				//       ticks shouldn't get lost in theory, but who knows
 			}
 			
 			// Re-render the widget
@@ -130,8 +164,12 @@ public class Client {
 	/// Maps Atom UID's to the respective atoms
 	private Map<Integer,Atom> atomsByUID = new HashMap<Integer,Atom>();
 	
-	/// A private queue of AtomDeltas which have been incoming.
-	/// TODO: Make sure the AtomDelta's are sorted by their respective tick
-	ConcurrentLinkedQueue<AtomDelta> atomDeltas =
-			new ConcurrentLinkedQueue<AtomDelta>();
+	/// A private HashMap of AtomDeltas which have been incoming.
+	/// This maps world ticks to AtomDelta's
+	ConcurrentHashMap<Integer,AtomDelta> atomDeltas =
+			new ConcurrentHashMap<Integer,AtomDelta>();
+	
+	/// Represents the current tick the client is processing from the server.
+	/// A value of -1 means that no tick has been processed yet.
+	int tick = -1;
 }

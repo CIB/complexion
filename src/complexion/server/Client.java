@@ -41,9 +41,14 @@ public class Client
 	/** Send an update for all visible atoms to the remote client.
 	 * @param server The server on which the world is running.
 	 */
-	public void synchronizeAtoms(Server server)
+	public void synchronizeAtoms()
 	{
+		Server server = Server.current;
+		
 		AtomDelta delta = new AtomDelta();
+		
+		// Store on which tick this message was sent.
+		delta.tick = server.getTick();
 		
 		// Extract the viewport center from this.eye
 		if(this.eye != null)
