@@ -121,8 +121,12 @@ public class Client {
 			{
 				int key = Keyboard.getEventKey();
 				boolean state = Keyboard.getEventKeyState();
-				InputData data = new InputData(key,state);
-				connection.send(data);
+				if(state == true)
+				{
+					// Only send an input message when the button was released
+					InputData data = new InputData(key);
+					connection.send(data);
+				}
 			}
 			// Re-render the widget
 			renderer.draw();

@@ -104,8 +104,6 @@ public class ServerListener extends Listener
 			InputData data = (InputData) object;
 			String has = "pressed";
 			Client A = server.clientsByIP.get(connection);
-			if(!data.key_state)
-				has = "released";
 			System.out.println(A.getAccountName() + " has " + has + data.key);
 		}
 	}
