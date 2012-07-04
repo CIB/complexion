@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+
+import complexion.network.message.InputData;
 import complexion.network.message.LoginAccepted;
 import complexion.network.message.LoginRequest;
 import complexion.network.message.RegisterClasses;
@@ -96,6 +98,15 @@ public class ServerListener extends Listener
 				// Login seems to have failed, kill the connection
 				connection.close();
 			}
+		}
+		if(object instanceof InputData)
+		{
+			InputData data = (InputData) object;
+			String has = "pressed";
+			Client A = server.clientsByIP.get(connection);
+			if(!data.key_state)
+				has = "released";
+			System.out.println(A.getAccountName() + " has " + has + data.key);
 		}
 	}
 	

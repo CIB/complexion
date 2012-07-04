@@ -17,5 +17,6 @@ public class RegisterClasses {
 		kryo.register(FullAtomUpdate.class);
 		kryo.register(AtomDelta.class);
 		kryo.register(ArrayList.class);
+		kryo.register(InputData.class);
 	}
 }

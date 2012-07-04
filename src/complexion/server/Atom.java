@@ -55,9 +55,6 @@ public class Atom {
 		/// A package-private list of all the contents of the object
 		List<Atom> contents = new ArrayList<Atom>();
 		
-		// TODO: Add a way for the server to restart an animation
-		//       (similar to the BYOND flick proc)
-		
 		/** Fetch the filename associated with the atom's current sprite.
 		 */
 		public String getSprite() {
