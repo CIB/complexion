@@ -150,12 +150,12 @@ public class Atom {
 		/**
 		 * @return The tile at the bottom of whatever this is inside.
 		 */
-		public Atom getTile()
+		public Tile getTile()
 		{
-			Atom tile = this;
-			// Loops down to the bottom of wherever this atom is
-			while((tile = tile.getLoc()) != null){}
-			return tile;
+			Atom loc = getLoc();
+			if(loc == null) return null;
+			
+			return loc.getTile();
 		}
 		
 		/**

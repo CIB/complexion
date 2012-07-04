@@ -25,19 +25,25 @@ public class Server {
 	/// Height of the map in z-levels
 	private static int height = 1;
 	
+	/// Permanently passing around server instances is very bothersome.
+	///
+	/// Since in one application, we will have only one server, use a
+	/// global instance instead.
+	public static Server current;
+	
 	/** Start the server program.
 	 */
 	public static void main(String[] args)
 	{
-		Server server = new Server();
+		current = new Server();
 		
 		Log.set(Log.LEVEL_DEBUG);
 		
 		// Generate all the Zlevels for the map and store them in this.map
-		server.map = new Zlevel[height];
+		current.map = new Zlevel[height];
 		for(int z = 0; z<height; z++)
 		{
-			server.map[z] = new Zlevel(z);
+			current.map[z] = new Zlevel(z);
 		}
 		
 		// Add a sample object
@@ -48,7 +54,7 @@ public class Server {
 		
 		// Start server networking
 		try {
-			ServerListener master = new ServerListener(server,1024);
+			ServerListener master = new ServerListener(current,1024);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
@@ -62,8 +68,8 @@ public class Server {
 		// Run the world in a loop
 		while(true)
 		{
-			server.nextTick();
-			if(server.getTick() % 50 < 25)
+			current.nextTick();
+			if(current.getTick() % 50 < 25)
 			{
 				test_tile.setSpriteState("owl");
 			}
