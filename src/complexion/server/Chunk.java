@@ -1,5 +1,8 @@
 package complexion.server;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author head
  * A small part of a larger map.
@@ -18,6 +21,9 @@ public class Chunk
 
 	/// if the chunk is active
 	private boolean active = false;
+	
+	/// A list of all the clients that can see any part of this chunk.
+	List<Client> visibleToClients = new ArrayList<Client>();
 	
 	/** Initialize the chunk.
 	 * 

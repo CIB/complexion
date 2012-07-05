@@ -1,6 +1,8 @@
 package complexion.server;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -168,6 +170,44 @@ public class Server {
 			
 			client.synchronizeAtoms();
 		}
+	}
+	
+
+	/** 
+	 * Get all chunks that overlap the given view-range.
+	 * @return A list that contains all chunks which overlap the range defined by the parameters.
+	 */
+	public List<Chunk> getOverlappingChunks(int start_x, int end_x, int start_y, int end_y, int start_z, int end_z)
+	{
+		List<Chunk> rval = new ArrayList<Chunk>();
+		
+		// convert the tile positions on the x and y axis to chunk indices
+		int chunk_start_x = start_x / Chunk.width;
+		int chunk_end_x   = end_x   / Chunk.width;
+		
+		int chunk_start_y = start_y / Chunk.height;
+		int chunk_end_y   = end_y   / Chunk.height;
+		
+		// Make sure everything is within bounds
+		if(start_z <          0) start_z = 0;
+		if(end_z   > map.length) end_z   = map.length;
+		
+		// Now populate the return list by iterating over all the
+		// relevant chunk indices.
+		for(int z = start_z; z<=end_z; z++)
+		{
+			Zlevel zl = this.map[z];
+			for(int x = chunk_start_x; x<=chunk_end_x; x++) 
+				for(int y = chunk_start_y; y<=chunk_end_y; y++)
+			{
+				// Try to extract the chunk and add it if it exists
+				Chunk chunk = zl.getChunk(x, y);
+				if(chunk != null) rval.add(chunk);
+			}
+		}
+		
+		
+		return rval;
 	}
 
 	// TODO: Create a getTileRange function which will get a list of tiles

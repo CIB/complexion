@@ -61,7 +61,7 @@ public class Zlevel {
 	 */
 	Tile getTile(int pos_x,int pos_y)
 	{
-		Chunk chunk = getChunk(pos_x, pos_y);
+		Chunk chunk = getChunk(pos_x / Chunk.width, pos_y / Chunk.height);
 		if(chunk == null) return null;
 		
 		return chunk.getTile(pos_x, pos_y);
@@ -71,7 +71,7 @@ public class Zlevel {
 	 */
 	void setTile(int x, int y, Tile tile)
 	{
-		Chunk chunk = getChunk(x, y);
+		Chunk chunk = getChunk(x / Chunk.width, y / Chunk.height);
 		if(chunk == null) return;
 		
 		chunk.setTile(x, y, tile);
@@ -79,8 +79,8 @@ public class Zlevel {
 	
 	/**
 	 * Returns the chunk that contains the tile at (x,y)
-	 * @param x Global tile coordinate on the x-axis
-	 * @param y Global tile coordinate on the y-axis
+	 * @param x Chunk index on the x-axis
+	 * @param y Chunk index on the y-axis
 	 * @return
 	 */
 	Chunk getChunk(int x, int y)
@@ -89,7 +89,7 @@ public class Zlevel {
 		try
 		{
 			// Find the chunk that contains the tile at (x,y)
-			Chunk chunk = map[x / Chunk.width][y / Chunk.height];
+			Chunk chunk = map[x][y];
 			return chunk;
 		}
 		catch(NullPointerException e)

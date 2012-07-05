@@ -17,6 +17,7 @@ public class AtomDelta {
 	public AtomDelta(){};
 	
 	public ArrayList<AtomUpdate> updates;
+	public ArrayList<SendMovementEvent> events;
 	
 	/// Center of the client viewport
 	public int eye_x, eye_y;
