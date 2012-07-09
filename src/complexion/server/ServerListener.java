@@ -105,6 +105,7 @@ public class ServerListener extends Listener
 			String has = "pressed";
 			Client A = server.clientsByIP.get(connection);
 			System.out.println(A.getAccountName() + " has " + has + data.key);
+			A.ProcessInput(data.key);
 		}
 	}
 	

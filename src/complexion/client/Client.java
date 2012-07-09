@@ -14,6 +14,8 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 
+import com.esotericsoftware.minlog.Log;
+
 import complexion.common.Config;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
@@ -59,7 +61,7 @@ public class Client {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		Log.set(Log.LEVEL_DEBUG);
 		// Initialize the client window.
 		try {
 			renderer = new Renderer();
