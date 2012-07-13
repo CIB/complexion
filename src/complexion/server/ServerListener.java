@@ -85,7 +85,9 @@ public class ServerListener extends Listener
 					login_success = true; // We're good, bro
 
 					// Notify the client that the login was successful
-					connection.sendTCP(new LoginAccepted());
+					LoginAccepted data = new LoginAccepted();
+					data.tick = server.getTick();
+					connection.sendTCP(data);
 					
 					// Finish initializing the client.
 					new_client.account_name = request.account_name;

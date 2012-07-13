@@ -138,7 +138,7 @@ public class Client
 						{
 							if(content.outdated != 0)
 							{
-								turf.outdated = 0;
+								content.outdated = 0;
 								delta.updates.add(new FullAtomUpdate(content));
 							}
 						}
@@ -148,7 +148,8 @@ public class Client
 		}
 		
 		// Send the atom updates to the remote client.
-		connection.send(delta);
+		if(!delta.updates.isEmpty())
+			connection.send(delta);
 	}
 	public void ProcessInput(int key)
 	{
@@ -156,6 +157,21 @@ public class Client
 		{
 			if(holder != null)
 				holder.Step(Directions.NORTH);
+		}
+		if(Keyboard.KEY_D == key)
+		{
+			if(holder != null)
+				holder.Step(Directions.EAST);
+		}
+		if(Keyboard.KEY_A == key)
+		{
+			if(holder != null)
+				holder.Step(Directions.WEST);
+		}
+		if(Keyboard.KEY_S == key)
+		{
+			if(holder != null)
+				holder.Step(Directions.SOUTH);
 		}
 	}
 	/**

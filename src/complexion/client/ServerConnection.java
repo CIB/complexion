@@ -85,6 +85,8 @@ public class ServerConnection extends Listener
 		if(object instanceof LoginAccepted)
 		{
 			this.loggedIn = true;
+			LoginAccepted data = (LoginAccepted) object;
+			client.tick = data.tick;
 			connection.sendTCP(new LoginAccepted());
 		}
 		else if(object instanceof AtomDelta)
@@ -93,7 +95,7 @@ public class ServerConnection extends Listener
 			// allow the main thread to process it. We'll be sorting it
 			// into its specified tick.
 			AtomDelta delta = (AtomDelta) object;
-			client.atomDeltas.put(delta.tick, delta);
+			client.atomDeltas.add(delta);
 		}
 	}
 	public void send(Object data)

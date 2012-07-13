@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -17,6 +18,7 @@ import org.lwjgl.opengl.Display;
 import com.esotericsoftware.minlog.Log;
 
 import complexion.common.Config;
+import complexion.common.Console;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
 import complexion.network.message.FullAtomUpdate;
@@ -62,6 +64,7 @@ public class Client {
 			e.printStackTrace();
 		}
 		Log.set(Log.LEVEL_DEBUG);
+		Console C = new Console();
 		// Initialize the client window.
 		try {
 			renderer = new Renderer();
@@ -82,7 +85,7 @@ public class Client {
 			}
 			
 			// Check if we need to initialize the ticker.
-			if(tick == -1)
+		/*	if(tick == -1)
 			{
 				// Look for the first tick we can get.
 				ArrayList<Integer> keys = new ArrayList<Integer>(atomDeltas.keySet());
@@ -97,14 +100,16 @@ public class Client {
 					// Make this our global tick.
 					this.tick = firstTick;
 				}
-			}
+			}*/
 			
 			// If we have a tick initialized, that means we're connected,
 			// so start processing incoming AtomDelta's
 			if(tick != -1)
 			{
 				// Get a delta from the queue
-				AtomDelta delta = atomDeltas.get(tick);
+				AtomDelta delta;
+				while((delta = atomDeltas.poll()) != null)
+				{
 				if(delta != null)
 				{
 					// Process the individual updates
@@ -113,6 +118,7 @@ public class Client {
 						this.processAtomUpdate(update);
 					}
 					tick++;
+				}
 				}
 				// TODO: remove all atomdelta's that are older than the current tick
 				
@@ -145,7 +151,7 @@ public class Client {
 	{
 		// Check if the atom already exists
 		boolean exists = atomsByUID.containsKey(data.UID);
-		
+		System.err.println("Processing AtomUpdate");
 		// Check the type of the AtomUpdate
 		if(data instanceof FullAtomUpdate)
 		{
@@ -170,6 +176,7 @@ public class Client {
 				renderer.addAtom(atom);
 			}
 		}
+		renderer.sortLayers();
 	}
 	
 	private Renderer renderer;
@@ -180,8 +187,8 @@ public class Client {
 	
 	/// A private HashMap of AtomDeltas which have been incoming.
 	/// This maps world ticks to AtomDelta's
-	ConcurrentHashMap<Integer,AtomDelta> atomDeltas =
-			new ConcurrentHashMap<Integer,AtomDelta>();
+	ConcurrentLinkedQueue<AtomDelta> atomDeltas =
+			new ConcurrentLinkedQueue<AtomDelta>();
 	
 	/// Represents the current tick the client is processing from the server.
 	/// A value of -1 means that no tick has been processed yet.
