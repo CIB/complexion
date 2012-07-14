@@ -82,6 +82,10 @@ public class Client {
 			// Check if we need to initialize the ticker.
 			if(tick == -1)
 			{
+				// What we do here is initialize the client's internal "clock" to be synchronized
+				// with the server. This will later be used to make sure the client is running
+				// smoothly and without "spikes".
+				
 				// Look for the first tick we can get.
 				ArrayList<Integer> keys = new ArrayList<Integer>(atomDeltas.keySet());
 				Collections.sort(keys);
@@ -101,6 +105,18 @@ public class Client {
 			// so start processing incoming AtomDelta's
 			if(tick != -1)
 			{
+				// We will only be processing a single "tick" here. Before consequent ticks are processed,
+				// control will be given back to the client, which will lead to the updates being rendered, as
+				// well as a small delay(Config.tickLag) being put in place.
+				
+				// By doing this, we can make sure there's always a more or less constant delay between ticks, 
+				// which will smoothen out movement, animation and other changes to the map.
+				
+				// Without this "controlled delay" in processing updates, if the client were to experience 
+				// minor lag spikes (of say 0.2 seconds), what he'd see is a mob moving 0 tiles due to the lag, 
+				// then 2 tiles at once when two packages arrive at once, then 0 tiles, then 2 tiles at once, 
+				// i.e. the "time" would be distorted from the client's point of view
+				
 				// Get a delta from the queue
 				AtomDelta delta = atomDeltas.get(tick);
 				if(delta != null)
