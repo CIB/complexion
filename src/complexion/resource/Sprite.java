@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import complexion.client.Atom;
 import complexion.common.Directions;
 
 /**
@@ -123,6 +124,15 @@ public class Sprite extends Resource {
 	private Map<String,SpriteState> states;
 	private int width  = 0;
 	private int height = 0;
+	public boolean isTransparent(int offset_x, int offset_y,Atom atom)
+	{
+		BufferedImage img = getImage(atom.sprite_state,atom.frame,atom.direction);
+		int pixel = img.getRGB(offset_x,offset_y);
+		if( (pixel>>24) == 0x00 ) {
+	      return true;
+		}
+		return false;
+	}
 }
 
 /**

@@ -3,16 +3,13 @@ package complexion.client;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 
 import com.esotericsoftware.minlog.Log;
@@ -55,7 +52,7 @@ public class Client {
 		// This should become a user dialog later.
 		try {
 			connection = new ServerConnection(this, InetAddress.getByName("localhost"), 1024);
-			System.out.println(connection.login("CIB", "password"));
+			System.out.println(connection.login("head", "password"));
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -63,8 +60,8 @@ public class Client {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Log.set(Log.LEVEL_DEBUG);
-		Console C = new Console();
+		//Log.set(Log.LEVEL_DEBUG);
+		new Console();
 		// Initialize the client window.
 		try {
 			renderer = new Renderer();
@@ -125,6 +122,15 @@ public class Client {
 				// TODO: make sure we're not waiting forever for the tick to come
 				//       ticks shouldn't get lost in theory, but who knows
 			}
+			if(Mouse.isButtonDown(0)) // left click
+			{
+				onClick(Mouse.getX(),Mouse.getY(),0);
+			}
+			else if(Mouse.isButtonDown(1)) // Right click
+			{
+				onClick(Mouse.getX(),Mouse.getY(),1);
+			}
+			// Check if any keys were pressed.
 			while(Keyboard.next() && Display.isVisible())
 			{
 				int key = Keyboard.getEventKey();
@@ -142,6 +148,35 @@ public class Client {
 		
 		renderer.destroy();
 	}
+	/**
+	 * 
+	 * 
+	 */
+	private void onClick(int mouse_x,int mouse_y,int key)
+	{
+		int tile_x = (int)Math.floor(mouse_x/Config.tileWidth);
+		int tile_y = (int)Math.floor(mouse_y/Config.tileHeight);
+		int offset_x =mouse_x-(tile_x*Config.tileWidth) ;
+		int offset_y = mouse_y-(tile_y*Config.tileWidth);
+		Atom clicked_atom = null;
+		
+		for(int x=renderer.atoms.size()-1;x>=0;x--)
+		{
+			Atom A = renderer.atoms.get(x);
+			if(A.tile_x == tile_x && A.tile_y == tile_y)
+			{
+				if(!A.sprite.isTransparent(offset_x,offset_y,A))
+				{
+					clicked_atom = A;
+					break;
+				}
+			}
+		}
+		if(clicked_atom != null)
+		{
+			System.err.println("Clicked "+clicked_atom.sprite_state);
+		}
+	}
 	
 	/**
 	 * Process a single AtomUpdate type object to add it to the map/add a new object.
@@ -151,7 +186,8 @@ public class Client {
 	{
 		// Check if the atom already exists
 		boolean exists = atomsByUID.containsKey(data.UID);
-		System.err.println("Processing AtomUpdate");
+	//	if(Config.debug)
+	//		System.err.println("Processing AtomUpdate");
 		// Check the type of the AtomUpdate
 		if(data instanceof FullAtomUpdate)
 		{

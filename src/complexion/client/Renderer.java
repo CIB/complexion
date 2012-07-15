@@ -77,10 +77,6 @@ public class Renderer {
 			// Check where to render the sprite on the buffer
 			int offset_x = a.tile_x * Config.tileWidth + a.pixel_x;
 			int offset_y = a.tile_y * Config.tileWidth + a.pixel_y;
-			if(a.sprite_state.equals("muzzle"))
-			{
-				System.err.println("muzzle at ("+offset_x+","+offset_y+") onMap"+a.onMap);
-			}
 			// Objects with onMap set are displayed relative to the
 			// current viewport position(scrolling)
 			if(a.onMap)
