@@ -162,6 +162,7 @@ public class Server {
 	{
 		this.tick++;
 		
+		// First update all clients
 		for(Map.Entry<Connection, Client> entry : clientsByIP.entrySet())
 		{
 			Client client = entry.getValue();
@@ -169,6 +170,17 @@ public class Server {
 			if(client.connection == null) continue;
 			
 			client.synchronizeAtoms();
+		}
+		
+		// Then clear atom updates for all clients
+		for(Map.Entry<Connection, Client> entry : clientsByIP.entrySet())
+		{
+			Client client = entry.getValue();
+			// Check if the client has a connection; If not, it's not ready.
+			if(client.connection == null) continue;
+			
+			// This sets atom.outdated = 0 for all atoms in the client's view
+			client.clearAtomsInView();
 		}
 	}
 	
@@ -216,5 +228,6 @@ public class Server {
 	/// Maps TCP connections to clients connected via that address
 	/// Accessed by networking threads, so it has to be concurrent.
 	ConcurrentMap<Connection,Client> clientsByIP 
-		= new ConcurrentHashMap<Connection,Client>(); 
+		= new ConcurrentHashMap<Connection,Client>();
+	
 }

@@ -38,10 +38,43 @@ public class Client
 		this.eye = eye;
 	}
 	
+	/** Remove the updated flags from all atoms in view of the client.
+	 *  This should be called on each client at the end of the processing
+	 *  tick.
+	 */
+	void clearAtomsInView()
+	{
+		if(this.eye == null) return;
+		
+		int eye_x = eye.getX();
+		int eye_y = eye.getY();
+		
+		// Scan over all the atoms and see if they're outdated
+		for(int x=eye_x - view_range; x<=eye_x + view_range; x++)
+		{
+			for(int y=eye_y - view_range; y<=eye_y + view_range; y++)
+			{
+				// Extract the turf at the given tile
+				Tile turf = Server.current.getTile(x, y, 0);
+				
+				// Make sure the turf actually exists
+				if(turf != null)
+				{
+					// clear the outdated flags for the tile and its contents
+					turf.outdated = 0;
+					for(Atom content : turf.contents)
+					{
+						content.outdated = 0;
+					}
+				}
+			}
+		}
+	}
+	
 	/** Send an update for all visible atoms to the remote client.
 	 * @param server The server on which the world is running.
 	 */
-	public void synchronizeAtoms()
+	void synchronizeAtoms()
 	{
 		Server server = Server.current;
 		
@@ -117,14 +150,12 @@ public class Client
 						// TODO: discriminate between the different outdated types
 						if(turf.outdated != 0)
 						{
-							turf.outdated = 0;
 							delta.updates.add(new FullAtomUpdate(turf));
 						}
 						for(Atom content : turf.contents)
 						{
 							if(content.outdated != 0)
 							{
-								turf.outdated = 0;
 								delta.updates.add(new FullAtomUpdate(content));
 							}
 						}
