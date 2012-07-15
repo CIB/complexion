@@ -2,13 +2,14 @@ package complexion.test;
 
 import java.io.IOException;
 
-import com.esotericsoftware.kryonet.*;
+import complexion.server.Server;
+import complexion.server.ServerListener;
 
 public class KryoTest {
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args) throws IOException, InterruptedException
 	{
 		Server server = new Server();
-		server.start();
-		server.bind(54555, 54777);
+		ServerListener master = new ServerListener(server,1024);
+		Thread.sleep(1000);
 	}
 }

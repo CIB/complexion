@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
@@ -53,6 +54,9 @@ public class Renderer {
 		for (Atom a : atoms) {
 			// Try to get a texture for our atom from its sprite
 			BufferedImage buf = a.getCurrentImage();
+			
+			// Check if the image exists
+			if(buf == null) continue;
 
 			// Do we have the texture cached?
 			if (!this.textures.containsKey(buf)) {
@@ -121,6 +125,14 @@ public class Renderer {
 		this.eye_y = pos_y;
 	}
 	
+	/**
+	 * Destroy the renderer and rendering window.
+	 */
+	public void destroy()
+	{
+		Display.destroy();
+	}
+	
 	/** 
 	 * Private class used for sorting collections by layer.
 	 */
@@ -134,6 +146,7 @@ public class Renderer {
 			else                         return 0;
 		}
 	}
+	
 
 	// All the atoms we're currently rendering.
 	List<Atom> atoms = new ArrayList<Atom>();

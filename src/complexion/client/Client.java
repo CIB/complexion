@@ -1,6 +1,24 @@
 package complexion.client;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.lwjgl.LWJGLException;
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.opengl.Display;
+
+import complexion.common.Config;
+import complexion.network.message.AtomDelta;
+import complexion.network.message.AtomUpdate;
+import complexion.network.message.FullAtomUpdate;
+import complexion.network.message.InputData;
 
 /**
  * Class representing the entire client application, and global
@@ -9,7 +27,8 @@ import org.lwjgl.LWJGLException;
 public class Client {
 	public static void main(String[] args)
 	{
-		Client client = new Client(args);
+		// This will start the client program and loop indefinitely
+		new Client(args);
 	}
 	
 	/**
@@ -24,10 +43,23 @@ public class Client {
 	}
 	
 	/**
-	 * Client program initialization.
+	 * Client program initialization and loop.
 	 */
 	public Client(String[] args)
 	{
+		// Try to log into a preconfigured server.
+		// This should become a user dialog later.
+		try {
+			connection = new ServerConnection(this, InetAddress.getByName("localhost"), 1024);
+			System.out.println(connection.login("CIB", "password"));
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		// Initialize the client window.
 		try {
 			renderer = new Renderer();
@@ -35,7 +67,137 @@ public class Client {
 			Client.notifyError("Error setting up program window.. Exiting.",e);
 			System.exit(1); // Exit with 1 to signify that an error occured
 		}
+		
+		// Intercept and process AtomDelta's
+		while(!Display.isCloseRequested())
+		{
+			try {
+				// TODO: if too many deltas have stacked up, try to catch up
+				//       by waiting shorter
+				Thread.sleep(Config.tickLag);
+			} catch (InterruptedException e) {
+				// Just ignore and continue
+			}
+			
+			// Check if we need to initialize the ticker.
+			if(tick == -1)
+			{
+				// What we do here is initialize the client's internal "clock" to be synchronized
+				// with the server. This will later be used to make sure the client is running
+				// smoothly and without "spikes".
+				
+				// Look for the first tick we can get.
+				ArrayList<Integer> keys = new ArrayList<Integer>(atomDeltas.keySet());
+				Collections.sort(keys);
+				
+				// Check if a first tick exists at all.
+				if(keys.size() > 0)
+				{
+					// Extract the key(tick) of the first tick.
+					int firstTick = keys.get(0);
+					
+					// Make this our global tick.
+					this.tick = firstTick;
+				}
+			}
+			
+			// If we have a tick initialized, that means we're connected,
+			// so start processing incoming AtomDelta's
+			if(tick != -1)
+			{
+				// We will only be processing a single "tick" here. Before consequent ticks are processed,
+				// control will be given back to the client, which will lead to the updates being rendered, as
+				// well as a small delay(Config.tickLag) being put in place.
+				
+				// By doing this, we can make sure there's always a more or less constant delay between ticks, 
+				// which will smoothen out movement, animation and other changes to the map.
+				
+				// Without this "controlled delay" in processing updates, if the client were to experience 
+				// minor lag spikes (of say 0.2 seconds), what he'd see is a mob moving 0 tiles due to the lag, 
+				// then 2 tiles at once when two packages arrive at once, then 0 tiles, then 2 tiles at once, 
+				// i.e. the "time" would be distorted from the client's point of view
+				
+				// Get a delta from the queue
+				AtomDelta delta = atomDeltas.get(tick);
+				if(delta != null)
+				{
+					// Process the individual updates
+					for(AtomUpdate update : delta.updates)
+					{
+						this.processAtomUpdate(update);
+					}
+					tick++;
+				}
+				// TODO: remove all atomdelta's that are older than the current tick
+				
+				// TODO: make sure we're not waiting forever for the tick to come
+				//       ticks shouldn't get lost in theory, but who knows
+			}
+			while(Keyboard.next() && Display.isVisible())
+			{
+				int key = Keyboard.getEventKey();
+				boolean state = Keyboard.getEventKeyState();
+				if(state == true)
+				{
+					// Only send an input message when the button was released
+					InputData data = new InputData(key);
+					connection.send(data);
+				}
+			}
+			// Re-render the widget
+			renderer.draw();
+		}
+		
+		renderer.destroy();
+	}
+	
+	/**
+	 * Process a single AtomUpdate type object to add it to the map/add a new object.
+	 * @param data The AtomUpdate to process.
+	 */
+	private void processAtomUpdate(AtomUpdate data)
+	{
+		// Check if the atom already exists
+		boolean exists = atomsByUID.containsKey(data.UID);
+		
+		// Check the type of the AtomUpdate
+		if(data instanceof FullAtomUpdate)
+		{
+			FullAtomUpdate full = (FullAtomUpdate) data;
+			if(exists)
+			{
+				// Atom already exists, update it
+				Atom old = atomsByUID.get(full.UID);
+				
+				// Load the entire data of the atom update into the existing atom
+				full.updateClientAtom(old);
+			}
+			else
+			{
+				// The atom doesn't exist yet, create it
+				Atom atom = new Atom();
+				full.updateClientAtom(atom);
+				
+				// Add the created atom to our atom cache, and also
+				// to the renderer.
+				atomsByUID.put(data.UID, atom);
+				renderer.addAtom(atom);
+			}
+		}
 	}
 	
 	private Renderer renderer;
+	private ServerConnection connection;
+	
+	/// Maps Atom UID's to the respective atoms
+	private Map<Integer,Atom> atomsByUID = new HashMap<Integer,Atom>();
+	
+	/// A private HashMap of AtomDeltas which have been incoming.
+	/// This maps world ticks to AtomDelta's
+	ConcurrentHashMap<Integer,AtomDelta> atomDeltas =
+			new ConcurrentHashMap<Integer,AtomDelta>();
+	
+	/// Represents the current tick the client is processing from the server.
+	/// A value of -1 means that no tick has been processed yet.
+	int tick = -1;
 }

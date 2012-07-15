@@ -1,8 +1,11 @@
 package complexion.resource;
 
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 import complexion.common.Directions;
 
@@ -17,7 +20,7 @@ import complexion.common.Directions;
  * @author cib
  *
  */
-public class Sprite {
+public class Sprite extends Resource {
 	/**
 	 * Load a .dmi file(a tiled PNG with metadata) into a Sprite object.
 	 * @param filename The filepath as string of the .dmi
@@ -25,6 +28,11 @@ public class Sprite {
 	 */
 	public Sprite(String filename) throws IOException 
 	{
+		// Remember the filename
+		this.filename = filename;
+		// Generate a CRC from the file on disk
+		this.hashID = getCRC32(filename);
+		
 		parseDMI(new FileInputStream(filename));
 	}
 	
@@ -34,8 +42,11 @@ public class Sprite {
 	 * @param stream An InputStream object containing the .dmi
 	 * @throws IOException
 	 */
-	public Sprite(InputStream stream) throws IOException
+	public Sprite(String filename, InputStream stream) throws IOException
 	{
+		// Remember the filename
+		this.filename = filename;
+		
 		parseDMI(stream);
 	}
 	
