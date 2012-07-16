@@ -58,10 +58,14 @@ public class Client
 	 */
 	void clearAtomsInView()
 	{
-		if(this.eye == null) return;
+		int eye_x = 0;
+		int eye_y = 0;
 		
-		int eye_x = eye.getX();
-		int eye_y = eye.getY();
+		if(this.eye != null)
+		{
+			eye_x = eye.getX();
+			eye_y = eye.getY();
+		}
 		
 		// Scan over all the atoms and see if they're outdated
 		for(int x=eye_x - view_range; x<=eye_x + view_range; x++)
