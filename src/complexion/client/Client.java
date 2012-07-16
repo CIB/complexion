@@ -96,23 +96,38 @@ public class Client {
 				// i.e. the "time" would be distorted from the client's point of view
 				
 				// Get a delta from the queue
-				AtomDelta delta;
-				if((delta = atomDeltas.poll()) != null)
-				{
+				AtomDelta delta = atomDeltas.poll();
 				if(delta != null)
 				{
-					// Process the individual updates
-					for(AtomUpdate update : delta.updates)
+					// whether we're going to process this update
+					boolean update_relevant = true;
+					
+					// Check if the update's tick is valid
+					if(delta.tick <= this.tick)
 					{
-						this.processAtomUpdate(update);
+						// Update too old, ignore
+						update_relevant = false;
 					}
-					tick++;
+					else if(delta.tick > this.tick + 1)
+					{
+						// The tick is not the next tick. That's bad, it means we missed something.
+						// When this occurs, that is an actual bug(as we do not want to miss any updates), so do not
+						// remove this error, fix your buggy code instead.
+						System.err.println("Next tick from server is "+delta.tick+", but client is only at "+this.tick);
+					}
+					
+					if(update_relevant)
+					{
+						// Process the individual updates
+						for(AtomUpdate update : delta.updates)
+						{
+							this.processAtomUpdate(update);
+						}
+						
+						// Skip ahead to the tick we just processed
+						tick = delta.tick;
+					}
 				}
-				}
-				// TODO: remove all atomdelta's that are older than the current tick
-				
-				// TODO: make sure we're not waiting forever for the tick to come
-				//       ticks shouldn't get lost in theory, but who knows
 			}
 			if(Mouse.isButtonDown(0)) // left click
 			{
