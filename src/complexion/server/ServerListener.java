@@ -30,7 +30,7 @@ public class ServerListener extends Listener
 		
 		// Create the server(huge name needed due to naming conflict)
 		server_socket = 
-				new com.esotericsoftware.kryonet.Server();
+				new com.esotericsoftware.kryonet.Server(16384 ,3072);
 		
 		// Setup message classes for transfer.
 		RegisterClasses.registerClasses(server_socket.getKryo());

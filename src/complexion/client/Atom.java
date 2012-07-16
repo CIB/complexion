@@ -1,6 +1,7 @@
 package complexion.client;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import complexion.resource.Sprite;
 
@@ -37,13 +38,17 @@ public class Atom {
 	public String sprite_state;
 	
 	/// The current animation frame the sprite is in.
-	public int frame;
-	
-	/// A sprite can define different appearances depending on the
+	public int frame; // test
+	public ArrayList<Atom> overlays;
+ 	/// A sprite can define different appearances depending on the
 	/// direction. This variable should be one of the constants defined
 	/// in complexion.Direction
 	public int direction;
-	
+	///  This may be used to define how a click should be treated.
+	/// Two possible values 
+	/// 0 = //Transparent to the mouse , ignored completely
+	/// 1 = // Transparent to the mouse where the Atoms icon is transparent
+	public int mouse_opacity = 1;
 	/// If this is set to false, the atom will always have the same position
 	/// on the viewport, rather than being tied to a map position.
 	boolean onMap = true;
@@ -54,5 +59,21 @@ public class Atom {
 	public BufferedImage getCurrentImage()
 	{
 		return sprite.getImage(sprite_state, frame, direction);
+	}
+	/**
+	 *  Check if the atom is transparent the pixel coordinates inside the current sprite.
+	 * @param offset_x // The x pixel coordinate inside the image
+	 * @param offset_y // The y pixel coordinate inside the image
+	 * @return : Returns true if Transparent at the coordinates false if not.
+	 */
+	public boolean isTransparent(int offset_x, int offset_y)
+	{
+		// TODO : Overlays support.
+		BufferedImage img = sprite.getImage(sprite_state,frame,direction);
+		int pixel = img.getRGB(offset_x,offset_y); // Get the RGBA bits
+		if( (pixel>>24) == 0x00 ) { // Check Alpha bit if 0x00 then its transparent.
+	      return true;
+		}
+		return false;
 	}
 }

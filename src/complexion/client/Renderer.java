@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
@@ -154,6 +153,9 @@ public class Renderer {
 	// Current position of the viewport on the map
 	private int eye_x, eye_y;
 
+	/**
+	 * Sorts the render list from bottom to top layerwise.
+	 */
 	public void sortLayers()
 	{
 		Collections.sort(atoms, new Renderer.LayerComparator());

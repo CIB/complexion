@@ -19,7 +19,7 @@ public class Client
 	/// login system
 	String account_name;
 	
-	// The mob that the client uses
+	// The mob that the client uses and input is relayed too. aka the "thing" the client is  controlling
 	private Mob holder;
 	/// The TCP connection this client uses.
 	ClientConnection connection;
@@ -151,6 +151,10 @@ public class Client
 		if(!delta.updates.isEmpty())
 			connection.send(delta);
 	}
+	/**
+	 * Processes input received from clients
+	 * @param key : The internal number of a keyboard key
+	 */
 	public void ProcessInput(int key)
 	{
 		if(Keyboard.KEY_W == key)

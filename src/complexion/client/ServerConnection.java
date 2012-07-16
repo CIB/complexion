@@ -31,7 +31,7 @@ public class ServerConnection extends Listener
 		
 		// Start the connection and connect to the server
 		connection = 
-				new com.esotericsoftware.kryonet.Client();
+				new com.esotericsoftware.kryonet.Client(8192,3072);
 		connection.addListener(this);
 		connection.start();
 		connection.connect(5000, address, port);
@@ -86,7 +86,7 @@ public class ServerConnection extends Listener
 		{
 			this.loggedIn = true;
 			LoginAccepted data = (LoginAccepted) object;
-			client.tick = data.tick;
+			client.setTick(data.tick);
 			connection.sendTCP(new LoginAccepted());
 		}
 		else if(object instanceof AtomDelta)

@@ -20,13 +20,13 @@ public class Mob extends Movable
 	}
 	public boolean Step(int direction)
 	{
-		boolean result = super.Step(direction);
-		if(result)
+		boolean result = super.Step(direction); // call Moveables Step
+		if(result) // Check if we were able to move?
 		{
-			//client.setEye(this);
+			client.setEye(this); //Update eye.
 			return true;
 		}
-		return false;
+		return false;// Otherwise return false
 	}
 
 }

@@ -12,8 +12,6 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 
-import com.esotericsoftware.minlog.Log;
-
 import complexion.common.Config;
 import complexion.common.Console;
 import complexion.network.message.AtomDelta;
@@ -105,7 +103,7 @@ public class Client {
 			{
 				// Get a delta from the queue
 				AtomDelta delta;
-				while((delta = atomDeltas.poll()) != null)
+				if((delta = atomDeltas.poll()) != null)
 				{
 				if(delta != null)
 				{
@@ -136,7 +134,7 @@ public class Client {
 				int key = Keyboard.getEventKey();
 				boolean state = Keyboard.getEventKeyState();
 				if(state == true)
-				{
+				{	
 					// Only send an input message when the button was released
 					InputData data = new InputData(key);
 					connection.send(data);
@@ -148,30 +146,36 @@ public class Client {
 		
 		renderer.destroy();
 	}
+
 	/**
 	 * 
-	 * 
+	 * Method called when the user clicks
+	 * Calculates the tile posistion 
+	 * @param mouse_x  // The screen pixel x location of the click
+	 * @param mouse_y // The screen pixel y location of the click
+	 * @param key // Left Button(0) or Right Button(1)
 	 */
 	private void onClick(int mouse_x,int mouse_y,int key)
 	{
-		int tile_x = (int)Math.floor(mouse_x/Config.tileWidth);
-		int tile_y = (int)Math.floor(mouse_y/Config.tileHeight);
-		int offset_x =mouse_x-(tile_x*Config.tileWidth) ;
-		int offset_y = mouse_y-(tile_y*Config.tileWidth);
+		int tile_x = (int)Math.floor(mouse_x/Config.tileWidth); // Give us the tile y cordinate
+		int tile_y = (int)Math.floor(mouse_y/Config.tileHeight);// Give us the tile x cordinate
+		int offset_x =mouse_x-(tile_x*Config.tileWidth) ;// calculate what pixel inside the tile
+		int offset_y = mouse_y-(tile_y*Config.tileWidth); // calculate what pixel inside the tile
 		Atom clicked_atom = null;
-		
+		// I have to iterate from the end due that its sorted by layer
 		for(int x=renderer.atoms.size()-1;x>=0;x--)
 		{
-			Atom A = renderer.atoms.get(x);
-			if(A.tile_x == tile_x && A.tile_y == tile_y)
+			Atom A = renderer.atoms.get(x); // Get the atom
+			if(A.tile_x == tile_x && A.tile_y == tile_y) // Check if atom is in the tile
 			{
-				if(!A.sprite.isTransparent(offset_x,offset_y,A))
+				if(!A.isTransparent(offset_x,offset_y)) // Check if said pixel is transparent.
 				{
 					clicked_atom = A;
 					break;
 				}
 			}
 		}
+		// TODO: Debug code remove.
 		if(clicked_atom != null)
 		{
 			System.err.println("Clicked "+clicked_atom.sprite_state);
@@ -229,4 +233,10 @@ public class Client {
 	/// Represents the current tick the client is processing from the server.
 	/// A value of -1 means that no tick has been processed yet.
 	int tick = -1;
+
+	public void setTick(int new_tick)
+	{
+		tick = new_tick;
+		
+	}
 }
