@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+import complexion.client.Atom;
 import complexion.common.Directions;
 
 /**

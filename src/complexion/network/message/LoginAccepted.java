@@ -6,4 +6,5 @@ package complexion.network.message;
 public class LoginAccepted 
 {
 	public LoginAccepted() {};
+	public int tick = 0;
 }

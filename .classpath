@@ -13,8 +13,13 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/lwjgl_util.jar"/>
 	<classpathentry kind="lib" path="lib/slick-util.jar"/>
+	<classpathentry kind="lib" path="lib/asm-4.0.jar"/>
+	<classpathentry kind="lib" path="lib/jsonbeans-0.2.jar"/>
+	<classpathentry kind="lib" path="lib/kryo-debug-2.12.jar"/>
+	<classpathentry kind="lib" path="lib/kryonet-debug-2.12.jar"/>
+	<classpathentry kind="lib" path="lib/minlog-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/objenesis-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/reflectasm-1.03.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/kryo-2.16-all.jar"/>
-	<classpathentry kind="lib" path="lib/kryonet-2.12-all.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

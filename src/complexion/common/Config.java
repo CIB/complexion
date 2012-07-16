@@ -19,6 +19,8 @@ public class Config {
 	public static final int tileWidth  = 32;
 	public static final int tileHeight = 32;
 	
+	/// if debug messages should be displayed or not.
+	public static final boolean debug = true;
 	/// Duration of a gamelogic tick in milli-seconds
 	public static final int tickLag = 100;
 }

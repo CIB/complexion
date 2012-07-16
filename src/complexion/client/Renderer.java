@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.lwjgl.LWJGLException;
-import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
@@ -77,7 +76,6 @@ public class Renderer {
 			// Check where to render the sprite on the buffer
 			int offset_x = a.tile_x * Config.tileWidth + a.pixel_x;
 			int offset_y = a.tile_y * Config.tileWidth + a.pixel_y;
-			
 			// Objects with onMap set are displayed relative to the
 			// current viewport position(scrolling)
 			if(a.onMap)
@@ -142,7 +140,7 @@ public class Renderer {
 			// TODO: something like return Integer.compare(a1.layer,a2.layer)
 			//       would be more efficient
 			if     (a1.layer < a2.layer) return -1;
-			else if(a2.layer < a1.layer) return 1;
+			else if(a1.layer > a2.layer) return 1;
 			else                         return 0;
 		}
 	}
@@ -154,4 +152,13 @@ public class Renderer {
 	
 	// Current position of the viewport on the map
 	private int eye_x, eye_y;
+
+	/**
+	 * Sorts the render list from bottom to top layerwise.
+	 */
+	public void sortLayers()
+	{
+		Collections.sort(atoms, new Renderer.LayerComparator());
+		
+	}
 }
