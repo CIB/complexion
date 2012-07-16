@@ -79,28 +79,6 @@ public class Client {
 				// Just ignore and continue
 			}
 			
-			// Check if we need to initialize the ticker.
-		/*	if(tick == -1)
-			{
-				// What we do here is initialize the client's internal "clock" to be synchronized
-				// with the server. This will later be used to make sure the client is running
-				// smoothly and without "spikes".
-				
-				// Look for the first tick we can get.
-				ArrayList<Integer> keys = new ArrayList<Integer>(atomDeltas.keySet());
-				Collections.sort(keys);
-				
-				// Check if a first tick exists at all.
-				if(keys.size() > 0)
-				{
-					// Extract the key(tick) of the first tick.
-					int firstTick = keys.get(0);
-					
-					// Make this our global tick.
-					this.tick = firstTick;
-				}
-			}*/
-			
 			// If we have a tick initialized, that means we're connected,
 			// so start processing incoming AtomDelta's
 			if(tick != -1)
