@@ -72,9 +72,13 @@ public class Client {
 		while(!Display.isCloseRequested())
 		{
 			try {
-				// TODO: if too many deltas have stacked up, try to catch up
-				//       by waiting shorter
-				Thread.sleep(Config.tickLag);
+				if(atomDeltas.size() > 0)
+				{
+					Thread.sleep(Config.tickLag / atomDeltas.size());
+				} else
+				{
+					Thread.sleep(1);
+				}
 			} catch (InterruptedException e) {
 				// Just ignore and continue
 			}
