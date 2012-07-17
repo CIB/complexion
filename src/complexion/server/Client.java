@@ -2,6 +2,9 @@ package complexion.server;
 
 import java.util.ArrayList;
 
+import org.lwjgl.input.Keyboard;
+
+import complexion.common.Directions;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
 import complexion.network.message.FullAtomUpdate;
@@ -16,9 +19,20 @@ public class Client
 	/// login system
 	String account_name;
 	
+	// The mob that the client uses and input is relayed too. aka the "thing" the client is  controlling
+	private Mob holder;
 	/// The TCP connection this client uses.
 	ClientConnection connection;
 
+	public Client()
+	{
+		Mob test_mover = new Mob();
+		test_mover.setSprite("mask.dmi");
+		test_mover.setSpriteState("muzzle");
+		test_mover.setLayer(10);
+		test_mover.Move(Server.current.getTile(1, 1, 0));
+		setHolder(test_mover);
+	}
 	public String getAccountName() {
 		return account_name;
 	}
@@ -38,10 +52,47 @@ public class Client
 		this.eye = eye;
 	}
 	
+	/** Remove the updated flags from all atoms in view of the client.
+	 *  This should be called on each client at the end of the processing
+	 *  tick.
+	 */
+	void clearAtomsInView()
+	{
+		int eye_x = 0;
+		int eye_y = 0;
+		
+		if(this.eye != null)
+		{
+			eye_x = eye.getX();
+			eye_y = eye.getY();
+		}
+		
+		// Scan over all the atoms and see if they're outdated
+		for(int x=eye_x - view_range; x<=eye_x + view_range; x++)
+		{
+			for(int y=eye_y - view_range; y<=eye_y + view_range; y++)
+			{
+				// Extract the turf at the given tile
+				Tile turf = Server.current.getTile(x, y, 0);
+				
+				// Make sure the turf actually exists
+				if(turf != null)
+				{
+					// clear the outdated flags for the tile and its contents
+					turf.outdated = 0;
+					for(Atom content : turf.contents)
+					{
+						content.outdated = 0;
+					}
+				}
+			}
+		}
+	}
+	
 	/** Send an update for all visible atoms to the remote client.
 	 * @param server The server on which the world is running.
 	 */
-	public void synchronizeAtoms()
+	void synchronizeAtoms()
 	{
 		Server server = Server.current;
 		
@@ -117,14 +168,12 @@ public class Client
 						// TODO: discriminate between the different outdated types
 						if(turf.outdated != 0)
 						{
-							turf.outdated = 0;
 							delta.updates.add(new FullAtomUpdate(turf));
 						}
 						for(Atom content : turf.contents)
 						{
 							if(content.outdated != 0)
 							{
-								turf.outdated = 0;
 								delta.updates.add(new FullAtomUpdate(content));
 							}
 						}
@@ -134,9 +183,54 @@ public class Client
 		}
 		
 		// Send the atom updates to the remote client.
-		connection.send(delta);
+		if(!delta.updates.isEmpty())
+			connection.send(delta);
+	}
+	/**
+	 * Processes input received from clients
+	 * @param key : The internal number of a keyboard key
+	 */
+	public void ProcessInput(int key)
+	{
+		if(Keyboard.KEY_W == key)
+		{
+			if(holder != null)
+				holder.Step(Directions.NORTH);
+		}
+		if(Keyboard.KEY_D == key)
+		{
+			if(holder != null)
+				holder.Step(Directions.EAST);
+		}
+		if(Keyboard.KEY_A == key)
+		{
+			if(holder != null)
+				holder.Step(Directions.WEST);
+		}
+		if(Keyboard.KEY_S == key)
+		{
+			if(holder != null)
+				holder.Step(Directions.SOUTH);
+		}
+	}
+	/**
+	 * @return the holder
+	 */
+	public Mob getHolder()
+	{
+		return holder;
 	}
 
+	/**
+	 * @param holder the holder to set
+	 */
+	public void setHolder(Mob holder)
+	{
+		if(holder != null && holder.getClient() != null)
+			return;
+		this.holder = holder;
+		this.holder.setClient(this);
+	}
 	/// An atom on the map that this client is associated with.
 	/// This will determine the client's current view range on the map.
 	private Atom eye;

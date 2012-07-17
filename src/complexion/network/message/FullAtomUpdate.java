@@ -53,5 +53,6 @@ public class FullAtomUpdate extends AtomUpdate {
 		into.tile_x = this.pos_x;
 		into.tile_y = this.pos_y;
 		into.UID    = this.UID;
+		into.layer = this.layer;
 	}
 }

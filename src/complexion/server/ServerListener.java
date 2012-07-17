@@ -30,7 +30,7 @@ public class ServerListener extends Listener
 		
 		// Create the server(huge name needed due to naming conflict)
 		server_socket = 
-				new com.esotericsoftware.kryonet.Server();
+				new com.esotericsoftware.kryonet.Server(16384 ,3072);
 		
 		// Setup message classes for transfer.
 		RegisterClasses.registerClasses(server_socket.getKryo());
@@ -85,7 +85,9 @@ public class ServerListener extends Listener
 					login_success = true; // We're good, bro
 
 					// Notify the client that the login was successful
-					connection.sendTCP(new LoginAccepted());
+					LoginAccepted data = new LoginAccepted();
+					data.tick = server.getTick();
+					connection.sendTCP(data);
 					
 					// Finish initializing the client.
 					new_client.account_name = request.account_name;
@@ -105,6 +107,7 @@ public class ServerListener extends Listener
 			String has = "pressed";
 			Client A = server.clientsByIP.get(connection);
 			System.out.println(A.getAccountName() + " has " + has + data.key);
+			A.ProcessInput(data.key);
 		}
 	}
 	

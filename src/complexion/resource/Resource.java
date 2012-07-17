@@ -29,7 +29,7 @@ public class Resource {
 			// Generate the CRC from the buffer
 			CRC32 crc = new CRC32();
 			crc.update(buffer);
-			
+			file.close();
 			// Return the generated CRC
 			return crc.getValue();
 		}

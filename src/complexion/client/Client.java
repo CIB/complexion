@@ -3,18 +3,17 @@ package complexion.client;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 
 import complexion.common.Config;
+import complexion.common.Console;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
 import complexion.network.message.FullAtomUpdate;
@@ -51,7 +50,7 @@ public class Client {
 		// This should become a user dialog later.
 		try {
 			connection = new ServerConnection(this, InetAddress.getByName("localhost"), 1024);
-			System.out.println(connection.login("CIB", "password"));
+			System.out.println(connection.login("head", "password"));
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,7 +58,8 @@ public class Client {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		//Log.set(Log.LEVEL_DEBUG);
+		new Console();
 		// Initialize the client window.
 		try {
 			renderer = new Renderer();
@@ -79,28 +79,6 @@ public class Client {
 				// Just ignore and continue
 			}
 			
-			// Check if we need to initialize the ticker.
-			if(tick == -1)
-			{
-				// What we do here is initialize the client's internal "clock" to be synchronized
-				// with the server. This will later be used to make sure the client is running
-				// smoothly and without "spikes".
-				
-				// Look for the first tick we can get.
-				ArrayList<Integer> keys = new ArrayList<Integer>(atomDeltas.keySet());
-				Collections.sort(keys);
-				
-				// Check if a first tick exists at all.
-				if(keys.size() > 0)
-				{
-					// Extract the key(tick) of the first tick.
-					int firstTick = keys.get(0);
-					
-					// Make this our global tick.
-					this.tick = firstTick;
-				}
-			}
-			
 			// If we have a tick initialized, that means we're connected,
 			// so start processing incoming AtomDelta's
 			if(tick != -1)
@@ -118,27 +96,54 @@ public class Client {
 				// i.e. the "time" would be distorted from the client's point of view
 				
 				// Get a delta from the queue
-				AtomDelta delta = atomDeltas.get(tick);
+				AtomDelta delta = atomDeltas.poll();
 				if(delta != null)
 				{
-					// Process the individual updates
-					for(AtomUpdate update : delta.updates)
+					// whether we're going to process this update
+					boolean update_relevant = true;
+					
+					// Check if the update's tick is valid
+					if(delta.tick <= this.tick)
 					{
-						this.processAtomUpdate(update);
+						// Update too old, ignore
+						update_relevant = false;
 					}
-					tick++;
+					else if(delta.tick > this.tick + 1)
+					{
+						// The tick is not the next tick. That's bad, it means we missed something.
+						// When this occurs, that is an actual bug(as we do not want to miss any updates), so do not
+						// remove this error, fix your buggy code instead.
+						System.err.println("Next tick from server is "+delta.tick+", but client is only at "+this.tick);
+					}
+					
+					if(update_relevant)
+					{
+						// Process the individual updates
+						for(AtomUpdate update : delta.updates)
+						{
+							this.processAtomUpdate(update);
+						}
+						
+						// Skip ahead to the tick we just processed
+						tick = delta.tick;
+					}
 				}
-				// TODO: remove all atomdelta's that are older than the current tick
-				
-				// TODO: make sure we're not waiting forever for the tick to come
-				//       ticks shouldn't get lost in theory, but who knows
 			}
+			if(Mouse.isButtonDown(0)) // left click
+			{
+				onClick(Mouse.getX(),Mouse.getY(),0);
+			}
+			else if(Mouse.isButtonDown(1)) // Right click
+			{
+				onClick(Mouse.getX(),Mouse.getY(),1);
+			}
+			// Check if any keys were pressed.
 			while(Keyboard.next() && Display.isVisible())
 			{
 				int key = Keyboard.getEventKey();
 				boolean state = Keyboard.getEventKeyState();
 				if(state == true)
-				{
+				{	
 					// Only send an input message when the button was released
 					InputData data = new InputData(key);
 					connection.send(data);
@@ -150,6 +155,41 @@ public class Client {
 		
 		renderer.destroy();
 	}
+
+	/**
+	 * 
+	 * Method called when the user clicks
+	 * Calculates the tile posistion 
+	 * @param mouse_x  // The screen pixel x location of the click
+	 * @param mouse_y // The screen pixel y location of the click
+	 * @param key // Left Button(0) or Right Button(1)
+	 */
+	private void onClick(int mouse_x,int mouse_y,int key)
+	{
+		int tile_x = (int)Math.floor(mouse_x/Config.tileWidth); // Give us the tile y cordinate
+		int tile_y = (int)Math.floor(mouse_y/Config.tileHeight);// Give us the tile x cordinate
+		int offset_x =mouse_x-(tile_x*Config.tileWidth) ;// calculate what pixel inside the tile
+		int offset_y = mouse_y-(tile_y*Config.tileWidth); // calculate what pixel inside the tile
+		Atom clicked_atom = null;
+		// I have to iterate from the end due that its sorted by layer
+		for(int x=renderer.atoms.size()-1;x>=0;x--)
+		{
+			Atom A = renderer.atoms.get(x); // Get the atom
+			if(A.tile_x == tile_x && A.tile_y == tile_y) // Check if atom is in the tile
+			{
+				if(!A.isTransparent(offset_x,offset_y)) // Check if said pixel is transparent.
+				{
+					clicked_atom = A;
+					break;
+				}
+			}
+		}
+		// TODO: Debug code remove.
+		if(clicked_atom != null)
+		{
+			System.err.println("Clicked "+clicked_atom.sprite_state);
+		}
+	}
 	
 	/**
 	 * Process a single AtomUpdate type object to add it to the map/add a new object.
@@ -159,7 +199,8 @@ public class Client {
 	{
 		// Check if the atom already exists
 		boolean exists = atomsByUID.containsKey(data.UID);
-		
+	//	if(Config.debug)
+	//		System.err.println("Processing AtomUpdate");
 		// Check the type of the AtomUpdate
 		if(data instanceof FullAtomUpdate)
 		{
@@ -184,6 +225,7 @@ public class Client {
 				renderer.addAtom(atom);
 			}
 		}
+		renderer.sortLayers();
 	}
 	
 	private Renderer renderer;
@@ -194,10 +236,16 @@ public class Client {
 	
 	/// A private HashMap of AtomDeltas which have been incoming.
 	/// This maps world ticks to AtomDelta's
-	ConcurrentHashMap<Integer,AtomDelta> atomDeltas =
-			new ConcurrentHashMap<Integer,AtomDelta>();
+	ConcurrentLinkedQueue<AtomDelta> atomDeltas =
+			new ConcurrentLinkedQueue<AtomDelta>();
 	
 	/// Represents the current tick the client is processing from the server.
 	/// A value of -1 means that no tick has been processed yet.
 	int tick = -1;
+
+	public void setTick(int new_tick)
+	{
+		tick = new_tick;
+		
+	}
 }
