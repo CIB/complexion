@@ -138,15 +138,19 @@ public class Client
 					// Extract the turf at the given tile
 					Tile turf = server.getTile(x, y, 0);
 					
-					// Make sure the turf actually exists
-					if(turf != null)
+					// Check if the tile is entirely new, or still in the old viewrange
+					if(last_x - view_range <= x && x <= last_x + view_range &&
+					   last_y - view_range <= y && y <= last_y + view_range)
 					{
-						delta.updates.add(new FullAtomUpdate(turf));
-						for(Atom content : turf.contents)
-						{
-							delta.updates.add(new FullAtomUpdate(content));
-						}
+						// The tile was also on the previous viewport, it's enough to update it
+						addTileIfOutdated(turf, delta);
 					}
+					else
+					{
+						// The tile wasn't on the previous viewport, resend completely
+						addTileToDelta(turf, delta);
+					}
+					
 				}
 			}
 			
@@ -164,23 +168,7 @@ public class Client
 				{
 					// Extract the turf at the given tile
 					Tile turf = server.getTile(x, y, 0);
-					
-					// Make sure the turf actually exists
-					if(turf != null)
-					{
-						// TODO: discriminate between the different outdated types
-						if(turf.outdated != 0)
-						{
-							delta.updates.add(new FullAtomUpdate(turf));
-						}
-						for(Atom content : turf.contents)
-						{
-							if(content.outdated != 0)
-							{
-								delta.updates.add(new FullAtomUpdate(content));
-							}
-						}
-					}
+					addTileIfOutdated(turf, delta);
 				}
 			}
 		}
@@ -234,6 +222,40 @@ public class Client
 		this.holder = holder;
 		this.holder.setClient(this);
 	}
+	
+	private void addTileToDelta(Tile tile, AtomDelta delta)
+	{
+		// Make sure the turf actually exists
+		if(tile != null)
+		{
+			delta.updates.add(new FullAtomUpdate(tile));
+			for(Atom content : tile.contents)
+			{
+				delta.updates.add(new FullAtomUpdate(content));
+			}
+		}
+	}
+	
+	private void addTileIfOutdated(Tile tile, AtomDelta delta)
+	{
+		// Make sure the turf actually exists
+		if(tile != null)
+		{
+			// TODO: discriminate between the different outdated types
+			if(tile.outdated != 0)
+			{
+				delta.updates.add(new FullAtomUpdate(tile));
+			}
+			for(Atom content : tile.contents)
+			{
+				if(content.outdated != 0)
+				{
+					delta.updates.add(new FullAtomUpdate(content));
+				}
+			}
+		}
+	}
+	
 	/// An atom on the map that this client is associated with.
 	/// This will determine the client's current view range on the map.
 	private Atom eye;
