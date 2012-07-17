@@ -101,14 +101,6 @@ public class ServerListener extends Listener
 				connection.close();
 			}
 		}
-		if(object instanceof InputData)
-		{
-			InputData data = (InputData) object;
-			String has = "pressed";
-			Client A = server.clientsByIP.get(connection);
-			System.out.println(A.getAccountName() + " has " + has + data.key);
-			A.ProcessInput(data.key);
-		}
 	}
 	
 	/// The game server instance this listener was crated from.

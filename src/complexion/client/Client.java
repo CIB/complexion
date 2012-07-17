@@ -159,7 +159,7 @@ public class Client {
 	/**
 	 * 
 	 * Method called when the user clicks
-	 * Calculates the tile posistion 
+	 * Calculates the tile position 
 	 * @param mouse_x  // The screen pixel x location of the click
 	 * @param mouse_y // The screen pixel y location of the click
 	 * @param key // Left Button(0) or Right Button(1)
@@ -189,6 +189,7 @@ public class Client {
 		{
 			System.err.println("Clicked "+clicked_atom.sprite_state);
 		}
+		// TODO: send event to server
 	}
 	
 	/**
@@ -199,8 +200,7 @@ public class Client {
 	{
 		// Check if the atom already exists
 		boolean exists = atomsByUID.containsKey(data.UID);
-	//	if(Config.debug)
-	//		System.err.println("Processing AtomUpdate");
+		
 		// Check the type of the AtomUpdate
 		if(data instanceof FullAtomUpdate)
 		{
@@ -246,6 +246,5 @@ public class Client {
 	public void setTick(int new_tick)
 	{
 		tick = new_tick;
-		
 	}
 }
