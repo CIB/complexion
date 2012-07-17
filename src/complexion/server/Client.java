@@ -149,6 +149,9 @@ public class Client
 					}
 				}
 			}
+			
+			last_x = delta.eye_x;
+			last_y = delta.eye_y;
 		}
 		else
 		{
