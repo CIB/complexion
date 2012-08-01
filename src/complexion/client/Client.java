@@ -14,6 +14,7 @@ import org.lwjgl.opengl.Display;
 
 import complexion.common.Config;
 import complexion.common.Console;
+import complexion.common.Utils;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
 import complexion.network.message.FullAtomUpdate;
@@ -53,7 +54,8 @@ public class Client {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-				
+		
+		// See https://code.google.com/p/minlog/#Log_level
 		Log.set(Log.LEVEL_DEBUG);
 		new Console();
 				
@@ -61,23 +63,19 @@ public class Client {
 		try {
 			current.renderer = new Renderer();
 		} catch (LWJGLException e) {
-			Client.notifyError("Error setting up program window.. Exiting.",e);
+			Client.notifyError("Error setting up program window. Exiting.", e);
 			System.exit(1); // Exit with 1 to signify that an error occured
 		}
 				
 		// Intercept and process AtomDelta's
 		while(!Display.isCloseRequested())
 		{
-			try {
-				if(current.atomDeltas.size() > 0)
-				{
-					Thread.sleep(Config.tickLag / current.atomDeltas.size());
-				} else
-				{
-					Thread.sleep(1);
-				}
-			} catch (InterruptedException e) {
-				// Just ignore and continue
+			if(current.atomDeltas.size() > 0)
+			{
+				Utils.sleep(Config.tickLag / current.atomDeltas.size());
+			} else
+			{
+				Utils.sleep(1);
 			}
 					
 			// If we have a tick initialized, that means we're connected,
@@ -114,7 +112,7 @@ public class Client {
 						// The tick is not the next tick. That's bad, it means we missed something.
 						// When this occurs, that is an actual bug(as we do not want to miss any updates), so do not
 						// remove this error, fix your buggy code instead.
-						System.err.println("Next tick from server is "+delta.tick+", but client is only at " + current.tick);
+						System.err.println("Next tick from server is " + delta.tick + ", but client is only at " + current.tick);
 					}
 					
 					if(update_relevant)

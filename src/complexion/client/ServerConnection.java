@@ -3,6 +3,8 @@ package complexion.client;
 import java.io.IOException;
 import java.net.InetAddress;
 
+import complexion.common.Utils;
+
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import complexion.network.message.AtomDelta;
@@ -59,11 +61,7 @@ public class ServerConnection extends Listener
 			{
 				return false;
 			}
-			try {
-				Thread.sleep(1);
-			} catch (InterruptedException e) {
-				continue;
-			}
+			Utils.sleep(1);
 		}
 		return true;
 	}

@@ -114,4 +114,20 @@ public class Utils {
 		return new_obj;
 		
 	}
+	
+	/**
+	 * The function causes the currently executing thread to sleep.
+	 * Exceptions thrown by Thread.sleep() are handled here. This way, code calls to sleep() are cleaner.
+	 * @param millis - the length of time to sleep in milliseconds
+	 */
+	public static final void sleep(long millis)
+	{
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			// Because if sleep throws that exception, the thread is no longer interrupted
+		}
+	}
+
 }
