@@ -44,11 +44,20 @@
 
     <!-- theme for the TestGui application -->
     <theme name="testgui" ref="-defaults">
-      <!-- theme for the toplevel button -->
+      	<!-- theme for the toplevel button -->
     	<theme name="button" ref="-defaults">
 	        <param name="background"><image>innerframe.background</image></param>
 	        <param name="border"><border>background.border</border></param>
 	        <param name="font"><font>normal</font></param>
+    	</theme>
+    	<theme name="login-panel" ref="-defaults">
+			<param name="background"><image>evilframe.background</image></param>
+			<param name="border"><border>background.border</border></param>
+			<param name="defaultGap"><dimension>5,5</dimension></param>
+			<param name="smallGap"><dimension>8,8</dimension></param>
+			<param name="mediumGap"><dimension>10,10</dimension></param>
+			<param name="largeGap"><dimension>15,15</dimension></param>
+			<param name="namedGaps"><map/></param>
     	</theme>
     </theme>
 

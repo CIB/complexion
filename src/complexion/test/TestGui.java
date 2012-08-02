@@ -43,12 +43,19 @@ public class TestGui extends Widget {
         Display.destroy();
     }
 
-    final DialogLayout loginPanel = null;
+    final DialogLayout loginPanel;
     final Button btnLogin;
     
     boolean quit;
 
     public TestGui() {
+
+        loginPanel = new DialogLayout();
+        loginPanel.setTheme("login-panel");
+        loginPanel.setInnerSize(200, 200);
+        
+        loginPanel.setHorizontalGroup(loginPanel.createParallelGroup());
+        loginPanel.setVerticalGroup(loginPanel.createSequentialGroup());
         
         btnLogin = new Button("LOGIN");
         btnLogin.addCallback(new Runnable() {
@@ -58,18 +65,19 @@ public class TestGui extends Widget {
         });
         
         add(btnLogin);
+        add(loginPanel);
     }
 
     @Override
     protected void layout() {
     	btnLogin.adjustSize();
     	btnLogin.setPosition(10, 10);
-    	/*
+    	
         // login panel is centered
-        loginPanel.adjustSize();
         loginPanel.setPosition(
                 getInnerX() + (getInnerWidth() - loginPanel.getWidth())/2,
                 getInnerY() + (getInnerHeight() - loginPanel.getHeight())/2);
-        */
+        loginPanel.setMinSize(200, 200);
+        
     }
 }
