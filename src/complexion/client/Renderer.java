@@ -23,9 +23,11 @@ public class Renderer {
 	/**
 	 * Initialize the LWJGL/OpenGL context.
 	 * 
+	 * @param scaleFactor By how much the rendered sprites should be scaled. 1 for no scaling.
+	 * 
 	 * @throws LWJGLException
 	 */
-	public Renderer() throws LWJGLException {
+	public Renderer(double scaleFactor) throws LWJGLException {
 		// Create the client window
 		Display.setDisplayMode(new DisplayMode(800, 600));
 		Display.create();
@@ -34,6 +36,7 @@ public class Renderer {
 		GL11.glMatrixMode(GL11.GL_PROJECTION);
 		GL11.glLoadIdentity();
 		GL11.glOrtho(0, 800, 0, 600, 1, -1);
+		GL11.glScaled(scaleFactor, scaleFactor, 1);
 		GL11.glMatrixMode(GL11.GL_MODELVIEW);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glEnable(GL11.GL_BLEND);

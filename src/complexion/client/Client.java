@@ -63,7 +63,7 @@ public class Client {
 				
 		// Initialize the client window.
 		try {
-			current.renderer = new Renderer();
+			current.renderer = new Renderer(1.5);
 		} catch (LWJGLException e) {
 			Client.notifyError("Error setting up program window. Exiting.", e);
 			System.exit(1); // Exit with 1 to signify that an error occured

@@ -50,13 +50,6 @@ public class TestGui extends Widget {
 
     public TestGui() {
 
-        loginPanel = new DialogLayout();
-        loginPanel.setTheme("login-panel");
-        loginPanel.setInnerSize(200, 200);
-        
-        loginPanel.setHorizontalGroup(loginPanel.createParallelGroup());
-        loginPanel.setVerticalGroup(loginPanel.createSequentialGroup());
-        
         btnLogin = new Button("LOGIN");
         btnLogin.addCallback(new Runnable() {
             public void run() {
@@ -64,7 +57,17 @@ public class TestGui extends Widget {
             }
         });
         
-        add(btnLogin);
+        btnLogin.setMinSize(100, 50);
+        
+        loginPanel = new DialogLayout();
+        loginPanel.setTheme("login-panel");
+        loginPanel.setInnerSize(200, 200);
+        
+        loginPanel.setHorizontalGroup(loginPanel.createSequentialGroup().addGap().addWidget(btnLogin).addGap());
+        loginPanel.setVerticalGroup(loginPanel.createSequentialGroup().addGap().addWidget(btnLogin));
+        
+        
+        
         add(loginPanel);
     }
 
