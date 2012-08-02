@@ -13,6 +13,7 @@ import com.esotericsoftware.minlog.Log;
 import complexion.common.Config;
 import complexion.common.Console;
 import complexion.common.Directions;
+import complexion.common.Utils;
 
 /**
  * Server class containing all global definitions for a specific server instance.
@@ -41,6 +42,7 @@ public class Server {
 	{
 		current = new Server();
 		
+		// See https://code.google.com/p/minlog/#Log_level
 		Log.set(Log.LEVEL_DEBUG);
 		
 		// Generate all the Zlevels for the map and store them in this.map
@@ -93,11 +95,7 @@ public class Server {
 				//test_mover.setSpriteState("muzzle");
 				test_mover.Move(current.getTile(3, 1, 0));
 			}
-			try {
-				Thread.sleep(Config.tickLag);
-			} catch (InterruptedException e) {
-				// Just continue ^^
-			}
+			Utils.sleep(Config.tickLag);
 		}
 	}
 	

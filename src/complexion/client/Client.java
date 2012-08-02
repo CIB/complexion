@@ -14,20 +14,147 @@ import org.lwjgl.opengl.Display;
 
 import complexion.common.Config;
 import complexion.common.Console;
+import complexion.common.Utils;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
 import complexion.network.message.FullAtomUpdate;
 import complexion.network.message.InputData;
+import complexion.server.Server;
+
+import com.esotericsoftware.minlog.Log;
 
 /**
  * Class representing the entire client application, and global
  * client state.
  */
 public class Client {
+	
+	/// Permanently passing around client instances is very bothersome.
+	///
+	/// Since in one application, we will have only one client, use a
+	/// global instance instead.
+	public static Client current;
+	
+	/**
+	 * Client program initialization and loop.
+	 */
 	public static void main(String[] args)
 	{
-		// This will start the client program and loop indefinitely
-		new Client(args);
+		current = new Client();
+		
+		// Try to log into a preconfigured server.
+		// This should become a user dialog later.
+		try {
+			current.connection = new ServerConnection(current, InetAddress.getByName("localhost"), 1024);
+			System.out.println(current.connection.login("head", "password"));
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// See https://code.google.com/p/minlog/#Log_level
+		Log.set(Log.LEVEL_DEBUG);
+		new Console();
+				
+		// Initialize the client window.
+		try {
+			current.renderer = new Renderer();
+		} catch (LWJGLException e) {
+			Client.notifyError("Error setting up program window. Exiting.", e);
+			System.exit(1); // Exit with 1 to signify that an error occured
+		}
+				
+		// Intercept and process AtomDelta's
+		while(!Display.isCloseRequested())
+		{
+			if(current.atomDeltas.size() > 0)
+			{
+				Utils.sleep(Config.tickLag / current.atomDeltas.size());
+			} else
+			{
+				Utils.sleep(1);
+			}
+					
+			// If we have a tick initialized, that means we're connected,
+			// so start processing incoming AtomDelta's
+			if(current.tick != -1)
+			{
+				// We will only be processing a single "tick" here. Before consequent ticks are processed,
+				// control will be given back to the client, which will lead to the updates being rendered, as
+				// well as a small delay(Config.tickLag) being put in place.
+				
+				// By doing this, we can make sure there's always a more or less constant delay between ticks, 
+				// which will smoothen out movement, animation and other changes to the map.
+			
+				// Without this "controlled delay" in processing updates, if the client were to experience 
+				// minor lag spikes (of say 0.2 seconds), what he'd see is a mob moving 0 tiles due to the lag, 
+				// then 2 tiles at once when two packages arrive at once, then 0 tiles, then 2 tiles at once, 
+				// i.e. the "time" would be distorted from the client's point of view
+						
+				// Get a delta from the queue
+				AtomDelta delta = current.atomDeltas.poll();
+				if(delta != null)
+				{
+					// whether we're going to process this update
+					boolean update_relevant = true;
+							
+					// Check if the update's tick is valid
+					if(delta.tick <= current.tick)
+					{
+						// Update too old, ignore
+						update_relevant = false;
+					}
+					else if(delta.tick > current.tick + 1)
+					{
+						// The tick is not the next tick. That's bad, it means we missed something.
+						// When this occurs, that is an actual bug(as we do not want to miss any updates), so do not
+						// remove this error, fix your buggy code instead.
+						System.err.println("Next tick from server is " + delta.tick + ", but client is only at " + current.tick);
+					}
+					
+					if(update_relevant)
+					{
+						// Process the individual updates
+						for(AtomUpdate update : delta.updates)
+						{
+							current.processAtomUpdate(update);
+						}
+						
+						// Skip ahead to the tick we just processed
+						current.tick = delta.tick;
+					}
+				}
+			}
+					
+			if(Mouse.isButtonDown(0)) // left click
+			{
+				current.onClick(Mouse.getX(),Mouse.getY(),0);
+			}
+			else if(Mouse.isButtonDown(1)) // Right click
+			{
+				current.onClick(Mouse.getX(),Mouse.getY(),1);
+			}
+					
+			// Check if any keys were pressed.
+			while(Keyboard.next() && Display.isVisible())
+			{
+				int key = Keyboard.getEventKey();
+				boolean state = Keyboard.getEventKeyState();
+				if(state == true)
+				{	
+					// Only send an input message when the button was released
+					InputData data = new InputData(key);
+					current.connection.send(data);
+				}
+			}
+			// Re-render the widget
+			current.renderer.draw();
+		}
+
+		current.renderer.destroy();
 	}
 	
 	/**
@@ -39,125 +166,6 @@ public class Client {
 	public static void notifyError(String user_error, Exception e)
 	{
 		System.out.println(user_error);
-	}
-	
-	/**
-	 * Client program initialization and loop.
-	 */
-	public Client(String[] args)
-	{
-		// Try to log into a preconfigured server.
-		// This should become a user dialog later.
-		try {
-			connection = new ServerConnection(this, InetAddress.getByName("localhost"), 1024);
-			System.out.println(connection.login("head", "password"));
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//Log.set(Log.LEVEL_DEBUG);
-		new Console();
-		// Initialize the client window.
-		try {
-			renderer = new Renderer();
-		} catch (LWJGLException e) {
-			Client.notifyError("Error setting up program window.. Exiting.",e);
-			System.exit(1); // Exit with 1 to signify that an error occured
-		}
-		
-		// Intercept and process AtomDelta's
-		while(!Display.isCloseRequested())
-		{
-			try {
-				if(atomDeltas.size() > 0)
-				{
-					Thread.sleep(Config.tickLag / atomDeltas.size());
-				} else
-				{
-					Thread.sleep(1);
-				}
-			} catch (InterruptedException e) {
-				// Just ignore and continue
-			}
-			
-			// If we have a tick initialized, that means we're connected,
-			// so start processing incoming AtomDelta's
-			if(tick != -1)
-			{
-				// We will only be processing a single "tick" here. Before consequent ticks are processed,
-				// control will be given back to the client, which will lead to the updates being rendered, as
-				// well as a small delay(Config.tickLag) being put in place.
-				
-				// By doing this, we can make sure there's always a more or less constant delay between ticks, 
-				// which will smoothen out movement, animation and other changes to the map.
-				
-				// Without this "controlled delay" in processing updates, if the client were to experience 
-				// minor lag spikes (of say 0.2 seconds), what he'd see is a mob moving 0 tiles due to the lag, 
-				// then 2 tiles at once when two packages arrive at once, then 0 tiles, then 2 tiles at once, 
-				// i.e. the "time" would be distorted from the client's point of view
-				
-				// Get a delta from the queue
-				AtomDelta delta = atomDeltas.poll();
-				if(delta != null)
-				{
-					// whether we're going to process this update
-					boolean update_relevant = true;
-					
-					// Check if the update's tick is valid
-					if(delta.tick <= this.tick)
-					{
-						// Update too old, ignore
-						update_relevant = false;
-					}
-					else if(delta.tick > this.tick + 1)
-					{
-						// The tick is not the next tick. That's bad, it means we missed something.
-						// When this occurs, that is an actual bug(as we do not want to miss any updates), so do not
-						// remove this error, fix your buggy code instead.
-						System.err.println("Next tick from server is "+delta.tick+", but client is only at "+this.tick);
-					}
-					
-					if(update_relevant)
-					{
-						// Process the individual updates
-						for(AtomUpdate update : delta.updates)
-						{
-							this.processAtomUpdate(update);
-						}
-						
-						// Skip ahead to the tick we just processed
-						tick = delta.tick;
-					}
-				}
-			}
-			if(Mouse.isButtonDown(0)) // left click
-			{
-				onClick(Mouse.getX(),Mouse.getY(),0);
-			}
-			else if(Mouse.isButtonDown(1)) // Right click
-			{
-				onClick(Mouse.getX(),Mouse.getY(),1);
-			}
-			// Check if any keys were pressed.
-			while(Keyboard.next() && Display.isVisible())
-			{
-				int key = Keyboard.getEventKey();
-				boolean state = Keyboard.getEventKeyState();
-				if(state == true)
-				{	
-					// Only send an input message when the button was released
-					InputData data = new InputData(key);
-					connection.send(data);
-				}
-			}
-			// Re-render the widget
-			renderer.draw();
-		}
-		
-		renderer.destroy();
 	}
 
 	/**
