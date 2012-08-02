@@ -27,13 +27,15 @@ import com.esotericsoftware.minlog.Log;
  * Class representing the entire client application, and global
  * client state.
  */
-public class Client {
+public class Client {	
 	
-	/// Permanently passing around client instances is very bothersome.
-	///
-	/// Since in one application, we will have only one client, use a
-	/// global instance instead.
+	/** Permanently passing around client instances is very bothersome.
+	    Since in one application, we will have only one client, use a
+		global instance instead.
+	**/
+
 	public static Client current;
+
 	
 	/**
 	 * Client program initialization and loop.
@@ -239,6 +241,21 @@ public class Client {
 		}
 		renderer.sortLayers();
 	}
+	
+	/** Get the width of the LWJGL display **/
+	public int getDisplayWidth()
+	{
+		return Display.getWidth();
+	}
+
+	
+
+	/** Get the height of the LWJGL display **/
+	public int getDisplayHeight()
+	{
+		return Display.getHeight();
+	}
+
 	
 	private Renderer renderer;
 	private ServerConnection connection;
