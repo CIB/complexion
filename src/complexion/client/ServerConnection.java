@@ -115,6 +115,10 @@ public class ServerConnection extends Listener
 				Dialog dialog = dialogClass.newInstance();
 				dialog.UID = create.UID;
 				dialog.initialize(create.args);
+				if(dialog.root != null)
+				{
+					Client.current.gui.getRootPane().add(dialog.root);
+				}
 			} catch (ClassNotFoundException e) {
 				System.err.println("Server asked to create non-existing dialog.");
 				return;

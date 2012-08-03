@@ -42,7 +42,7 @@ public class Client {
 	public static Client current;
 	
 	/** TWL topevel GUI instance this client uses for rendering its GUI widgets. **/
-	private GUI gui;
+	GUI gui;
 	
 	/**
 	 * Client program initialization and loop.
@@ -50,19 +50,6 @@ public class Client {
 	public static void main(String[] args)
 	{
 		current = new Client();
-		
-		// Try to log into a preconfigured server.
-		// This should become a user dialog later.
-		try {
-			current.connection = new ServerConnection(current, InetAddress.getByName("localhost"), 1024);
-			System.out.println(current.connection.login("head", "password"));
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		// See https://code.google.com/p/minlog/#Log_level
 		//Log.set(Log.LEVEL_DEBUG);
@@ -92,27 +79,19 @@ public class Client {
 			Client.notifyError("Error setting up GUI instance. Exiting.", e);
 			System.exit(1);
 		}
-		
-		// TODO: test code, remove later
-        Button test = new Button("LOGIN");
-        test.setMinSize(50, 30);
-        test.adjustSize();
-        test.setPosition(10, 10);        
-        test.addCallback(new Runnable() {
-            public void run() {
-                System.out.println("Button clicked!");
-            }
-        });
-        
-        DialogLayout loginPanel = new DialogLayout();
-        loginPanel.setTheme("login-panel");
-        loginPanel.setInnerSize(100, 100);
-        loginPanel.setPosition(100, 100);
-        
-        loginPanel.setHorizontalGroup(loginPanel.createSequentialGroup().addGap().addWidget(test).addGap());
-        loginPanel.setVerticalGroup(loginPanel.createSequentialGroup().addGap().addWidget(test));
-        
-        current.gui.getRootPane().add(loginPanel);
+
+		// Try to log into a preconfigured server.
+		// This should become a user dialog later.
+		try {
+			current.connection = new ServerConnection(current, InetAddress.getByName("localhost"), 1024);
+			System.out.println(current.connection.login("head", "password"));
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 				
 		// Intercept and process AtomDelta's
 		while(!Display.isCloseRequested())
