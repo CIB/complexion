@@ -2,6 +2,8 @@ package complexion.client;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import complexion.common.Utils;
 
@@ -9,6 +11,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.CreateDialog;
+import complexion.network.message.DialogSync;
 import complexion.network.message.LoginAccepted;
 import complexion.network.message.LoginRequest;
 import complexion.network.message.RegisterClasses;
@@ -20,6 +23,7 @@ import complexion.network.message.RegisterClasses;
  */
 public class ServerConnection extends Listener
 {
+	
 	/**
 	 * Create a new ServerConnection, which will automatically
 	 * connect to the specified host.
@@ -109,6 +113,7 @@ public class ServerConnection extends Listener
 				Class cl = Class.forName(create.classID);
 				
 				// Now make sure the class is actually a Dialog class
+				@SuppressWarnings("unchecked")
 				Class<Dialog> dialogClass = cl.asSubclass(Dialog.class);
 				
 				// Now initialize the dialog
@@ -119,6 +124,7 @@ public class ServerConnection extends Listener
 				{
 					Client.current.gui.getRootPane().add(dialog.root);
 				}
+				Client.current.dialogsByUID.put(dialog.UID, dialog);
 			} catch (ClassNotFoundException e) {
 				System.err.println("Server asked to create non-existing dialog.");
 				return;
@@ -132,6 +138,19 @@ public class ServerConnection extends Listener
 				System.err.println("Server attempted to create illegal Dialog class!");
 				return;
 			}
+		}
+		else if(object instanceof DialogSync)
+		{
+			// If it's a DialogSync, forward the message to the correct Dialog instance
+			DialogSync sync = (DialogSync) object;
+			Dialog dialog = Client.current.dialogsByUID.get(sync.UID);
+			if(dialog == null)
+			{
+				System.err.println("Received DialogSync for Dialog UID that doesn't exist.");
+				return;
+			}
+			
+			dialog.messageQueue.add(sync.message);
 		}
 	}
 	public void send(Object data)

@@ -37,6 +37,8 @@ public class Client
 		DialogHandle dialog = new DialogHandle(this,"complexion.test.TestDialog",null);
 		DialogHandle dialog2 = new DialogHandle(this,"randomgarbleclass",null);
 		DialogHandle dialog3 = new DialogHandle(this,"complexion.test.KryoTest",null);
+		
+		dialog.sendMessage("Test");
 	}
 	
 	public String getAccountName() {

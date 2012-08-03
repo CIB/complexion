@@ -29,12 +29,10 @@ abstract public class Dialog {
 		// TODO: implement
 	}
 	
-	/** Poll a message from the received message queue. 
-	 * @return The oldest message received from the server. Must be Kryo-serializable. **/
-	protected Object pollMessage()
-	{
-		return messageQueue.poll();
-	}
+	/** Callback handler invoked when a new message from the server has arrived and can be processed. 
+	 * 
+	 *  Overwrite this in your implementation to handle incoming messages. **/
+	protected void processMessage(Object message) {};
 
 	/** Callback handler which must be overwritten for each Dialog class.
 	 *  

@@ -5,7 +5,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -23,8 +25,6 @@ import complexion.network.message.InputData;
 
 import com.esotericsoftware.minlog.Log;
 
-import de.matthiasmann.twl.Button;
-import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
@@ -34,6 +34,10 @@ import de.matthiasmann.twl.theme.ThemeManager;
  * client state.
  */
 public class Client {	
+
+	/** Maintains a list of all dialogs currently open.
+	 */
+	ConcurrentMap<Integer,Dialog> dialogsByUID = new ConcurrentHashMap<Integer,Dialog>();
 	
 	/** Permanently passing around client instances is very bothersome.
 	    Since in one application, we will have only one client, use a
@@ -183,6 +187,20 @@ public class Client {
 					current.connection.send(data);
 				}
 			}
+			
+			// Handle dialog messages
+			for(Dialog dialog : Client.current.dialogsByUID.values())
+			{
+				Object message = dialog.messageQueue.poll();
+				while(message != null)
+				{
+					// Invoke the Dialog's handler for processing messages
+					dialog.processMessage(message);
+					
+					message = dialog.messageQueue.poll();
+				}
+			}
+			
 			// Clear the screen and depth buffer
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 			

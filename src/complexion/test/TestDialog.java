@@ -34,4 +34,10 @@ public class TestDialog extends Dialog {
 		System.out.println("Dialog destroyed!");
 	}
 	
+	@Override
+	public void processMessage(Object message)
+	{
+		System.out.println(message);
+	}
+	
 }
