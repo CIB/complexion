@@ -20,8 +20,6 @@ import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
 import complexion.network.message.FullAtomUpdate;
 import complexion.network.message.InputData;
-import complexion.server.Server;
-import complexion.test.TestGui;
 
 import com.esotericsoftware.minlog.Log;
 
@@ -41,7 +39,6 @@ public class Client {
 	    Since in one application, we will have only one client, use a
 		global instance instead.
 	**/
-
 	public static Client current;
 	
 	/** TWL topevel GUI instance this client uses for rendering its GUI widgets. **/
@@ -97,10 +94,15 @@ public class Client {
 		}
 		
 		// TODO: test code, remove later
-        Button test = new Button("TEST");
+        Button test = new Button("LOGIN");
         test.setMinSize(50, 30);
         test.adjustSize();
-        test.setPosition(10, 10);
+        test.setPosition(10, 10);        
+        test.addCallback(new Runnable() {
+            public void run() {
+                System.out.println("Button clicked!");
+            }
+        });
         
         DialogLayout loginPanel = new DialogLayout();
         loginPanel.setTheme("login-panel");
@@ -173,15 +175,22 @@ public class Client {
 					}
 				}
 			}
-					
-			if(Mouse.isButtonDown(0)) // left click
-			{
-				current.onClick(Mouse.getX(),Mouse.getY(),0);
-			}
-			else if(Mouse.isButtonDown(1)) // Right click
-			{
-				current.onClick(Mouse.getX(),Mouse.getY(),1);
-			}
+			
+			// Process mouse click events
+			// TODO: Add scroll events from LWJGLInput.java
+            while(Mouse.next()) {
+            	// First check whether TWL can handle the event
+                boolean handledByTWL = current.gui.handleMouse(
+                        Mouse.getEventX(), current.gui.getHeight() - Mouse.getEventY() - 1,
+                        Mouse.getEventButton(), Mouse.getEventButtonState());
+                
+                // If TWL can't handle the click, and the event was a mouse button press, 
+                // check whether the event is an atom click
+                if(!handledByTWL && Mouse.getEventButtonState())
+                {
+					current.onClick(Mouse.getEventX(),Mouse.getEventY(),Mouse.getEventButton());
+                }
+            }
 					
 			// Check if any keys were pressed.
 			while(Keyboard.next() && Display.isVisible())
@@ -202,6 +211,7 @@ public class Client {
 			current.renderer.draw();
 			
 			// Draw the GUI
+			// TODO: handle mouse and keyboard events where appropriate
 			current.gui.updateTime();
 			current.gui.draw();
 
