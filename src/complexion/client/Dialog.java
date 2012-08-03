@@ -15,17 +15,18 @@ abstract public class Dialog {
 	/** Root widget of this Dialog **/
 	protected Widget root;
 	
-	/** UID of the Atom with which this Dialog exchanges messages. **/
-	protected int remoteAtomUID;
+	/** UID of this Dialog. **/
+	protected int UID;
 	
-	private Queue<Object> messageQueue = new ConcurrentLinkedQueue<Object>();
+	/** Buffer the received sync messages. **/
+	Queue<Object> messageQueue = new ConcurrentLinkedQueue<Object>();
 	
 	/** Create the dialog with the given args which were submitted by the server over the network.
 	 *  
 	 *  @param args Arguments supplied by the server.**/
-	public Dialog(int remoteAtomUID, Object args)
+	public Dialog(int UID, Object args)
 	{
-		this.remoteAtomUID = remoteAtomUID;
+		this.UID = UID;
 		initialize(args);
 	}
 	
@@ -50,4 +51,7 @@ abstract public class Dialog {
 	 *  
 	 *  @param args Arguments supplied by the server.**/
 	abstract public void initialize(Object args);
+	
+	/** Called when the server destroys the dialog. **/
+	abstract public void destroy(Object args);
 }
