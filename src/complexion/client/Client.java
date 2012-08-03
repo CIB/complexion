@@ -65,8 +65,8 @@ public class Client {
 		}
 		
 		// See https://code.google.com/p/minlog/#Log_level
-		Log.set(Log.LEVEL_DEBUG);
-		new Console();
+		//Log.set(Log.LEVEL_DEBUG);
+		//new Console();
 				
 		// Initialize the client window.
 		try {

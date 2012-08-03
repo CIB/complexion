@@ -43,7 +43,7 @@ public class Server {
 		current = new Server();
 		
 		// See https://code.google.com/p/minlog/#Log_level
-		Log.set(Log.LEVEL_DEBUG);
+		//Log.set(Log.LEVEL_DEBUG);
 		
 		// Generate all the Zlevels for the map and store them in this.map
 		current.map = new Zlevel[height];
