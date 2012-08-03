@@ -8,6 +8,7 @@ import complexion.common.Utils;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import complexion.network.message.AtomDelta;
+import complexion.network.message.CreateDialog;
 import complexion.network.message.LoginAccepted;
 import complexion.network.message.LoginRequest;
 import complexion.network.message.RegisterClasses;
@@ -94,6 +95,39 @@ public class ServerConnection extends Listener
 			// into its specified tick.
 			AtomDelta delta = (AtomDelta) object;
 			client.atomDeltas.add(delta);
+		}
+		else if(object instanceof CreateDialog)
+		{
+			// If it's a CreateDialog, try to create the specified dialog.
+			CreateDialog create = (CreateDialog) object;
+			
+			try {
+				// We're creating the class from a string, this is a bit hacky.
+				
+				// First check what class was specified
+				@SuppressWarnings("rawtypes")
+				Class cl = Class.forName(create.classID);
+				
+				// Now make sure the class is actually a Dialog class
+				Class<Dialog> dialogClass = cl.asSubclass(Dialog.class);
+				
+				// Now initialize the dialog
+				Dialog dialog = dialogClass.newInstance();
+				dialog.UID = create.UID;
+				dialog.initialize(create.args);
+			} catch (ClassNotFoundException e) {
+				System.err.println("Server asked to create non-existing dialog.");
+				return;
+			} catch (InstantiationException e) {
+				System.err.println("Unable to instantiate given Dialog class.");
+				return;
+			} catch (IllegalAccessException e) {
+				System.err.println("Unable to instantiate given Dialog class.");
+				return;
+			} catch(ClassCastException e) {
+				System.err.println("Server attempted to create illegal Dialog class!");
+				return;
+			}
 		}
 	}
 	public void send(Object data)

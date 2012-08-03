@@ -24,7 +24,8 @@ public class Client
 	/// The TCP connection this client uses.
 	ClientConnection connection;
 
-	public Client()
+	/** A sort of constructor called after the Client has been set up properly. **/
+	public void initialize()
 	{
 		Mob test_mover = new Mob();
 		test_mover.setSprite("mask.dmi");
@@ -32,7 +33,12 @@ public class Client
 		test_mover.setLayer(10);
 		test_mover.Move(Server.current.getTile(1, 1, 0));
 		setHolder(test_mover);
+		
+		DialogHandle dialog = new DialogHandle(this,"complexion.test.TestDialog",null);
+		DialogHandle dialog2 = new DialogHandle(this,"randomgarbleclass",null);
+		DialogHandle dialog3 = new DialogHandle(this,"complexion.test.KryoTest",null);
 	}
+	
 	public String getAccountName() {
 		return account_name;
 	}

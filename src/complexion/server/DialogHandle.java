@@ -35,6 +35,7 @@ public class DialogHandle {
 	{
 		// Give out a new UID by incrementing the last UID by 1
 		UID = lastUID++;
+		this.client = client;
 		
 		CreateDialog message = new CreateDialog();
 		message.UID = UID; message.classID = className; message.args = args;

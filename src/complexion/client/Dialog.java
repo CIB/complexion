@@ -21,15 +21,6 @@ abstract public class Dialog {
 	/** Buffer the received sync messages. **/
 	Queue<Object> messageQueue = new ConcurrentLinkedQueue<Object>();
 	
-	/** Create the dialog with the given args which were submitted by the server over the network.
-	 *  
-	 *  @param args Arguments supplied by the server.**/
-	public Dialog(int UID, Object args)
-	{
-		this.UID = UID;
-		initialize(args);
-	}
-	
 	/** Send a message to the server atom associated with this Dialog. 
 	 * @param args Args to send, this must be something we can serialize with Kryo.
 	 **/
