@@ -48,9 +48,6 @@ public class Renderer {
 	 * objects currently assigned to the renderer.
 	 */
 	public void draw() {
-		// Clear the screen and depth buffer
-		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-
 		// Iterate over the atoms and draw them one by one
 		// TODO: sort them by layer
 		for (Atom a : atoms) {
@@ -100,8 +97,6 @@ public class Renderer {
 			GL11.glVertex2f(offset_x, offset_y + height);
 			GL11.glEnd();
 		}
-
-		Display.update();
 		
 		// TODO: uncache unused textures if the cache is too crowded
 	}

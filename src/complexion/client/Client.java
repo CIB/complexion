@@ -11,6 +11,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
 
 import complexion.common.Config;
 import complexion.common.Console;
@@ -20,8 +21,15 @@ import complexion.network.message.AtomUpdate;
 import complexion.network.message.FullAtomUpdate;
 import complexion.network.message.InputData;
 import complexion.server.Server;
+import complexion.test.TestGui;
 
 import com.esotericsoftware.minlog.Log;
+
+import de.matthiasmann.twl.Button;
+import de.matthiasmann.twl.DialogLayout;
+import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
+import de.matthiasmann.twl.theme.ThemeManager;
 
 /**
  * Class representing the entire client application, and global
@@ -35,7 +43,9 @@ public class Client {
 	**/
 
 	public static Client current;
-
+	
+	/** TWL topevel GUI instance this client uses for rendering its GUI widgets. **/
+	private GUI gui;
 	
 	/**
 	 * Client program initialization and loop.
@@ -68,6 +78,39 @@ public class Client {
 			Client.notifyError("Error setting up program window. Exiting.", e);
 			System.exit(1); // Exit with 1 to signify that an error occured
 		}
+		
+		// Build the GUI
+        LWJGLRenderer guiRenderer;
+		try {
+			guiRenderer = new LWJGLRenderer();
+	        current.gui = new GUI(guiRenderer);
+	        // TODO: load the root level theme from a nicer file(in res/, no weird ../../.. paths)
+	        ThemeManager theme = ThemeManager.createThemeManager(
+	        		Client.class.getResource("test.xml"), guiRenderer);
+	        current.gui.applyTheme(theme);
+		} catch (LWJGLException e) {
+			Client.notifyError("Error setting up GUI instance. Exiting.", e);
+			System.exit(1);
+		} catch (IOException e) {
+			Client.notifyError("Error setting up GUI instance. Exiting.", e);
+			System.exit(1);
+		}
+		
+		// TODO: test code, remove later
+        Button test = new Button("TEST");
+        test.setMinSize(50, 30);
+        test.adjustSize();
+        test.setPosition(10, 10);
+        
+        DialogLayout loginPanel = new DialogLayout();
+        loginPanel.setTheme("login-panel");
+        loginPanel.setInnerSize(100, 100);
+        loginPanel.setPosition(100, 100);
+        
+        loginPanel.setHorizontalGroup(loginPanel.createSequentialGroup().addGap().addWidget(test).addGap());
+        loginPanel.setVerticalGroup(loginPanel.createSequentialGroup().addGap().addWidget(test));
+        
+        current.gui.getRootPane().add(loginPanel);
 				
 		// Intercept and process AtomDelta's
 		while(!Display.isCloseRequested())
@@ -152,8 +195,17 @@ public class Client {
 					current.connection.send(data);
 				}
 			}
+			// Clear the screen and depth buffer
+			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+			
 			// Re-render the widget
 			current.renderer.draw();
+			
+			// Draw the GUI
+			current.gui.updateTime();
+			current.gui.draw();
+
+			Display.update();
 		}
 
 		current.renderer.destroy();
