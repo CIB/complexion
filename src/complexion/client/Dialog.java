@@ -3,6 +3,8 @@ package complexion.client;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import complexion.network.message.DialogSync;
+
 import de.matthiasmann.twl.Widget;
 
 /** This class represents a TWL dialog. This may be anything, ranging from a simple
@@ -24,9 +26,12 @@ abstract public class Dialog {
 	/** Send a message to the server atom associated with this Dialog. 
 	 * @param args Args to send, this must be something we can serialize with Kryo.
 	 **/
-	protected void sendMessage(Object args)
+	// TODO: make protected again, only public for testing purposes
+	public void sendMessage(Object args)
 	{
-		// TODO: implement
+		DialogSync message = new DialogSync();
+		message.UID = UID; message.message = args;
+		Client.current.connection.send(message);
 	}
 	
 	/** Callback handler invoked when a new message from the server has arrived and can be processed. 

@@ -5,16 +5,20 @@ import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 
 public class TestDialog extends Dialog {
-
+	public static TestDialog current;
+	
 	@Override
 	public void initialize(Object args) {
+		TestDialog.current = this;
+		
 		Button test = new Button("LOGIN");
 		test.setMinSize(50, 30);
 		test.adjustSize();
 		test.setPosition(10, 10);        
 		test.addCallback(new Runnable() {
 		    public void run() {
-		        System.out.println("Button clicked!");
+		    	System.out.println("Sending");
+		    	TestDialog.current.sendMessage("Reply test");
 		    }
 		});
 		

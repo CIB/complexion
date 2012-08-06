@@ -317,7 +317,9 @@ public class Client {
 
 	
 	private Renderer renderer;
-	private ServerConnection connection;
+	
+	/** Instance responsible for exchanging messages with the server. **/
+	ServerConnection connection;
 	
 	/// Maps Atom UID's to the respective atoms
 	private Map<Integer,Atom> atomsByUID = new HashMap<Integer,Atom>();

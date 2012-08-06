@@ -1,6 +1,8 @@
 package complexion.server;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.lwjgl.input.Keyboard;
 
@@ -14,7 +16,11 @@ import complexion.network.message.FullAtomUpdate;
  * The class can be used to send messages to the server etc.
  */
 public class Client 
-{
+{	
+	/** Maintains a list of all dialogs currently open.
+	 */
+	ConcurrentMap<Integer,DialogHandle> dialogsByUID = new ConcurrentHashMap<Integer,DialogHandle>();
+	
 	/// Identifies the client in the (as of yet non-existent)
 	/// login system
 	String account_name;
@@ -23,6 +29,9 @@ public class Client
 	private Mob holder;
 	/// The TCP connection this client uses.
 	ClientConnection connection;
+	
+	// TODO: test variable, remove
+	DialogHandle testDialog;
 
 	/** A sort of constructor called after the Client has been set up properly. **/
 	public void initialize()
@@ -34,11 +43,19 @@ public class Client
 		test_mover.Move(Server.current.getTile(1, 1, 0));
 		setHolder(test_mover);
 		
-		DialogHandle dialog = new DialogHandle(this,"complexion.test.TestDialog",null);
+		testDialog = new DialogHandle(this,"complexion.test.TestDialog",null);
 		DialogHandle dialog2 = new DialogHandle(this,"randomgarbleclass",null);
 		DialogHandle dialog3 = new DialogHandle(this,"complexion.test.KryoTest",null);
 		
-		dialog.sendMessage("Test");
+		testDialog.sendMessage("Test");
+	}
+	
+	/** Handler invoked regularly(every tick) to process things. **/
+	public void Tick()
+	{
+		//testDialog.sendMessage("TickMessage!");
+		Object o = testDialog.pollMessage();
+		if(o != null) System.out.println(o);
 	}
 	
 	public String getAccountName() {
