@@ -8,6 +8,8 @@ import java.util.List;
 
 import complexion.common.Utils;
 import complexion.common.Verb;
+import complexion.network.message.VerbParameter;
+import complexion.network.message.VerbSignature;
 import complexion.resource.Cache;
 import complexion.resource.Sprite;
 
@@ -245,11 +247,56 @@ public class Atom {
 		{
 			
 		}
+		
+		/** Retrieve a list of all atom verbs and their arguments. **/
+		public ArrayList<VerbSignature> getVerbs()
+		{
+			ArrayList<VerbSignature> rval = new ArrayList<VerbSignature>();
+			
+			// Check all the class' methods
+			for(Method m : this.getClass().getMethods())
+			{
+				// Check if it's a verb
+				if(m.getAnnotation(Verb.class) != null)
+				{
+					// Create a new verb to add to our list
+					VerbSignature sig = new VerbSignature();
+					sig.UID = this.UID;
+					sig.verbName = m.getName();
+					sig.parameters = new ArrayList<VerbParameter>();
+					
+					// Go through the parameters and add their type one by one.
+					// Note that later for lists, we'll need to check the method's annotations,
+					// e.g. "@param(position = 1, type = "List")
+					for(Class type : m.getParameterTypes())
+					{
+						// TODO: add list support
+						VerbParameter param = new VerbParameter();
+						if(type == String.class)
+						{
+							param.type = VerbParameter.Type.STRING;
+						}
+						else if(type == Integer.class)
+						{
+							param.type = VerbParameter.Type.INTEGER;
+						}
+						else
+						{
+							throw new RuntimeException("Verb "+this.getClass().getCanonicalName()+":"+
+														m.getName()+" has parameter of invalid type.");
+						}
+						sig.parameters.add(param);
+					}
+					
+					rval.add(sig);
+				}
+			}
+			
+			return rval;
+		}
 
 		/**
-		 * Call an atom verb with the given name(key) and arguments. TODO: Make sure
-		 * only functions we expressly make available over the network can be called
-		 * this way.
+		 * Call an atom verb with the given name(key) and arguments.
 		 * 
 		 * @param key
 		 *            Name of the function/verb to be called.

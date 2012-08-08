@@ -21,5 +21,8 @@ public class RegisterClasses {
 		kryo.register(SendMovementEvent.class);
 		kryo.register(DialogSync.class);
 		kryo.register(CreateDialog.class);
+		kryo.register(VerbParameter.class);
+		kryo.register(VerbSignature.class);
+		kryo.register(VerbResponse.class);
 	}
 }
