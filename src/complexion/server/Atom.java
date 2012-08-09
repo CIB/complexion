@@ -8,6 +8,7 @@ import java.util.List;
 
 import complexion.common.Utils;
 import complexion.common.Verb;
+import complexion.network.message.AtomVerbs;
 import complexion.network.message.VerbParameter;
 import complexion.network.message.VerbSignature;
 import complexion.resource.Cache;
@@ -248,20 +249,26 @@ public class Atom {
 			
 		}
 		
-		/** Retrieve a list of all atom verbs and their arguments. **/
-		public ArrayList<VerbSignature> getVerbs()
+		/** Retrieve a list of all atom verbs and their arguments, accessible by player.
+		 *  
+		 *  @param player The player atom for whom we will check whether they can access the verbs.
+		 **/
+		public AtomVerbs getVerbs(Movable player)
 		{
-			ArrayList<VerbSignature> rval = new ArrayList<VerbSignature>();
+			AtomVerbs rval = new AtomVerbs();
+			rval.atomUID = this.UID;
+			rval.verbs = new ArrayList<VerbSignature>();
 			
 			// Check all the class' methods
 			for(Method m : this.getClass().getMethods())
 			{
+				// TODO: Check if this verb is accessible by the the player atom
+				
 				// Check if it's a verb
 				if(m.getAnnotation(Verb.class) != null)
 				{
 					// Create a new verb to add to our list
 					VerbSignature sig = new VerbSignature();
-					sig.UID = this.UID;
 					sig.verbName = m.getName();
 					sig.parameters = new ArrayList<VerbParameter>();
 					
@@ -288,7 +295,7 @@ public class Atom {
 						sig.parameters.add(param);
 					}
 					
-					rval.add(sig);
+					rval.verbs.add(sig);
 				}
 			}
 			

@@ -6,6 +6,7 @@ import complexion.common.Utils;
 import complexion.network.message.VerbParameter;
 import complexion.network.message.VerbSignature;
 import complexion.server.Atom;
+import complexion.server.Movable;
 public class Test_verb {
 
 	/**
@@ -14,7 +15,8 @@ public class Test_verb {
 	public static void main(String[] args) {		
 		TestAtom A = new TestAtom();
 		
-		ArrayList<VerbSignature> signatures = A.getVerbs();
+		Movable player = new Movable();
+		ArrayList<VerbSignature> signatures = A.getVerbs(player).verbs;
 		for(VerbSignature v : signatures)
 		{
 			System.out.println("Verb: "+v.verbName);
@@ -24,6 +26,7 @@ public class Test_verb {
 			}
 		}
 		
+		/**
 		Object[] met_args = {"Head", "Beep"};
 		Object[] con_args = {"Hey Head!"};
 		if(A.callVerb("printTest", met_args)) // This should work.
@@ -40,6 +43,7 @@ public class Test_verb {
 		Object B = Utils.createClass("complexion.server.Atom",con_args,class_variables);
 		Atom C = (Atom)B;
 		System.out.print(C.getUID());
+		**/
 	}
 
 }
