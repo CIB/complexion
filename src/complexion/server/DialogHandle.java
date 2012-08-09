@@ -60,4 +60,17 @@ public class DialogHandle {
 	{
 		return messageQueue.poll();
 	}
+	
+	/** Create a dialog on the other end that won't communicate directly with the server.
+	 *  This means no actual handle instance is required, but rather, the only thing that needs
+	 *  to be done is create the dialog on the other side once.
+	 *  
+	 *  For that reason, the sent message will also contain no UID(or rather, always have the UID 0).
+	 */
+	public static void createSimpleDialog(Client client, String className, Object args)
+	{
+		CreateDialog message = new CreateDialog();
+		message.UID = 0; message.classID = className; message.args = args;
+		client.connection.send(message);
+	}
 }

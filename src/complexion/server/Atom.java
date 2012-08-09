@@ -325,13 +325,11 @@ public class Atom {
 			} 
 			catch (SecurityException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return false;
 			} 
 			catch (NoSuchMethodException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return false;
 			}

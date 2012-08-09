@@ -3,6 +3,7 @@ package complexion.client;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import complexion.common.NetworkMessageException;
 import complexion.network.message.DialogSync;
 
 import de.matthiasmann.twl.Widget;
@@ -44,7 +45,7 @@ abstract public class Dialog {
 	 *  This function should initialize the root widget.
 	 *  
 	 *  @param args Arguments supplied by the server.**/
-	abstract public void initialize(Object args);
+	abstract public void initialize(Object args) throws NetworkMessageException;
 	
 	/** Called when the server destroys the dialog. **/
 	abstract public void destroy(Object args);

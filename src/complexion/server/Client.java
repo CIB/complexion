@@ -9,7 +9,10 @@ import org.lwjgl.input.Keyboard;
 import complexion.common.Directions;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
+import complexion.network.message.AtomVerbs;
 import complexion.network.message.FullAtomUpdate;
+import complexion.network.message.VerbSignature;
+import complexion.test.TestAtom;
 
 /**
  * This class represents a single client connected to the server.
@@ -46,6 +49,9 @@ public class Client
 		testDialog = new DialogHandle(this,"complexion.test.TestDialog",null);
 		DialogHandle dialog2 = new DialogHandle(this,"randomgarbleclass",null);
 		DialogHandle dialog3 = new DialogHandle(this,"complexion.test.KryoTest",null);
+		
+		TestAtom a = new TestAtom();
+		this.createVerbDialog(a);
 		
 		testDialog.sendMessage("Test");
 	}
@@ -246,6 +252,17 @@ public class Client
 			return;
 		this.holder = holder;
 		this.holder.setClient(this);
+	}
+	
+	/** Creates a verb dialog for the specified target. Does nothing if the target
+	 *  has zero verbs that this client's holder can interact with.
+	 *  
+	 * @param target The atom to interact with, holding the list of verbs we might use.
+	 */
+	public void createVerbDialog(Atom target)
+	{
+		AtomVerbs verbs = target.getVerbs(this.holder);
+		DialogHandle.createSimpleDialog(this, "complexion.client.DialogVerb", verbs);
 	}
 	
 	private void addTileToDelta(Tile tile, AtomDelta delta)

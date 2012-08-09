@@ -104,6 +104,7 @@ public class ServerConnection extends Listener
 		{
 			// If it's a CreateDialog, try to create the specified dialog.
 			CreateDialog create = (CreateDialog) object;
+			System.out.println(create.classID);
 			
 			try {
 				// We're creating the class from a string, this is a bit hacky.
@@ -126,16 +127,16 @@ public class ServerConnection extends Listener
 				}
 				Client.current.dialogsByUID.put(dialog.UID, dialog);
 			} catch (ClassNotFoundException e) {
-				System.err.println("Server asked to create non-existing dialog.");
+				System.err.println("Server asked to create non-existing dialog "+create.classID);
 				return;
 			} catch (InstantiationException e) {
-				System.err.println("Unable to instantiate given Dialog class.");
+				System.err.println("Unable to instantiate given Dialog class "+create.classID);
 				return;
 			} catch (IllegalAccessException e) {
-				System.err.println("Unable to instantiate given Dialog class.");
+				System.err.println("Unable to instantiate given Dialog class "+create.classID);
 				return;
 			} catch(ClassCastException e) {
-				System.err.println("Server attempted to create illegal Dialog class!");
+				System.err.println("Server attempted to create illegal Dialog class "+create.classID);
 				return;
 			}
 		}
