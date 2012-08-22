@@ -10,6 +10,11 @@ public class TestAtom extends Atom
 	{
 		System.out.println(A+B);
 	}
+	@Verb(name = "Atom", category = "", desc = "", verb_icon = "")
+	public void simpleVerb()
+	{
+		System.out.println("IT WORKS!");
+	}
 	public void printTest(String A)
 	{
 		System.out.println(A);

@@ -1,14 +1,11 @@
 package complexion.server;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.FrameworkMessage.KeepAlive;
 import com.esotericsoftware.kryonet.Listener;
 
 import complexion.server.Client;
-import complexion.network.message.DialogSync;
-import complexion.network.message.InputData;
 
 /**
  * This class represents a single TCP connection to a client.
@@ -55,27 +52,10 @@ public class ClientConnection extends Listener {
 	@Override
 	public void received(Connection connection, Object message)
 	{
-		System.out.println("ClientConnection: "+message);
-		if(message instanceof InputData)
-		{
-			InputData data = (InputData) message;
-			String has = "pressed";
-			System.out.println(client.getAccountName() + " has " + has + data.key);
-			client.ProcessInput(data.key);
-		}
-		if(message instanceof DialogSync)
-		{
-			// If it's a DialogSync, forward the message to the correct Dialog instance
-			DialogSync sync = (DialogSync) message;
-			DialogHandle dialog = client.dialogsByUID.get(sync.UID);
-			if(dialog == null)
-			{
-				System.err.println("Received DialogSync for Dialog UID that doesn't exist.");
-				return;
-			}
-			
-			dialog.messageQueue.add(sync.message);
-		}
+		// Ignore keepalive messages
+		if(message instanceof KeepAlive) return;
+		
+		client.networkMessages.add(message);
 	}
 	
 	/**

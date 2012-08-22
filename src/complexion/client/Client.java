@@ -324,8 +324,8 @@ public class Client {
 	/// Maps Atom UID's to the respective atoms
 	private Map<Integer,Atom> atomsByUID = new HashMap<Integer,Atom>();
 	
-	/// A private HashMap of AtomDeltas which have been incoming.
-	/// This maps world ticks to AtomDelta's
+	/// A private Queue of AtomDeltas which have been incoming.
+	/// Sorted by the order in which they arrived.
 	ConcurrentLinkedQueue<AtomDelta> atomDeltas =
 			new ConcurrentLinkedQueue<AtomDelta>();
 	

@@ -13,5 +13,5 @@ public class VerbResponse {
 	public int UID; 
 	
 	/** Arguments to the verb. Must match the parameter types given in VerbParameter. **/
-	ArrayList<Object> arguments;
+	public ArrayList<Object> arguments;
 }

@@ -1,7 +1,10 @@
 package complexion.client;
 
+import java.util.ArrayList;
+
 import complexion.common.NetworkMessageException;
 import complexion.network.message.AtomVerbs;
+import complexion.network.message.VerbResponse;
 import complexion.network.message.VerbSignature;
 import complexion.test.TestDialog;
 import de.matthiasmann.twl.Button;
@@ -18,8 +21,12 @@ public class DialogVerb extends Dialog {
 		/** Verb that will be called when this button is clicked. **/
 		VerbSignature verb; 
 		
-		ButtonCallback(VerbSignature verb)
+		/** UID of the atom this button is associated with.  **/
+		int atomUID = 0;
+		
+		ButtonCallback(int UID, VerbSignature verb)
 		{
+			this.atomUID = UID;
 			this.verb = verb;
 		}
 		
@@ -27,6 +34,12 @@ public class DialogVerb extends Dialog {
 		public void run() {
 			System.out.println("Clicked verb "+this.verb.verbName+" with "+this.verb.parameters.size()+" parameters.");
 			// TODO: get the parameters as input and send back a message to the server.
+			
+			VerbResponse message = new VerbResponse();
+			message.verbName = this.verb.verbName;
+			message.UID = this.atomUID;
+			message.arguments = new ArrayList<Object>();
+			Client.current.connection.send(message);
 		}
 		
 		
@@ -59,23 +72,24 @@ public class DialogVerb extends Dialog {
 		verbPanel.setPosition(200, 120);
 		
 		// --- VERB WINDOW LAYOUT ---
-		DialogLayout.Group horizontalGroup = verbPanel.createSequentialGroup();
+		DialogLayout.Group horizontalGroup = verbPanel.createParallelGroup();
 		DialogLayout.Group verticalGroup = verbPanel.createSequentialGroup();
 		
 		// --- VERB BUTTONS ---
 		for(VerbSignature verb : verbs.verbs)
 		{
 			Button verbButton = new Button(verb.verbName);
+			verbButton.setMinSize(80, 25);
+			verbButton.adjustSize();
 			horizontalGroup.addWidget(verbButton);
 			verticalGroup.addWidget(verbButton);
-			verbButton.setMinSize(60, 25);
-			verbButton.adjustSize();
-			verbButton.addCallback(new ButtonCallback(verb));
+			verbButton.addCallback(new ButtonCallback(verbs.atomUID, verb));
 		}
 		
 		// --- FINALIZE ---
 		verbPanel.setHorizontalGroup(horizontalGroup);
 		verbPanel.setVerticalGroup(verticalGroup);
+		verbPanel.adjustSize();
 		
 		this.root = verbPanel;
 	}

@@ -1,7 +1,10 @@
 package complexion.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
 import org.lwjgl.input.Keyboard;
@@ -10,7 +13,10 @@ import complexion.common.Directions;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
 import complexion.network.message.AtomVerbs;
+import complexion.network.message.DialogSync;
 import complexion.network.message.FullAtomUpdate;
+import complexion.network.message.InputData;
+import complexion.network.message.VerbResponse;
 import complexion.network.message.VerbSignature;
 import complexion.test.TestAtom;
 
@@ -62,6 +68,51 @@ public class Client
 		//testDialog.sendMessage("TickMessage!");
 		Object o = testDialog.pollMessage();
 		if(o != null) System.out.println(o);
+		
+		// ====== PROCESS NETWORK MESSAGES ======
+		while(networkMessages.size() > 0)
+		{
+			// No need to check whether message retrievel was successful,
+			// due to the fact that other threads will only add, not remove
+			// messages from the queue
+			Object message = networkMessages.poll();
+			
+			// Process network events.
+			System.out.println("ClientConnection: "+message);
+			if(message instanceof InputData)
+			{
+				InputData data = (InputData) message;
+				String has = "pressed";
+				System.out.println(getAccountName() + " has " + has + data.key);
+				ProcessInput(data.key);
+			}
+			if(message instanceof DialogSync)
+			{
+				// If it's a DialogSync, forward the message to the correct Dialog instance
+				DialogSync sync = (DialogSync) message;
+				DialogHandle dialog = dialogsByUID.get(sync.UID);
+				if(dialog == null)
+				{
+					System.err.println("Received DialogSync for Dialog UID that doesn't exist.");
+					continue;
+				}
+				dialog.messageQueue.add(sync.message);
+			}
+			if(message instanceof VerbResponse)
+			{
+				VerbResponse verb = (VerbResponse) message;
+				Atom target = atomCache.get(verb.UID);
+				
+				// If the atom doesn't exist anymore, that's a problem.
+				if(target == null)
+				{
+					System.err.println("Received VerbResponse for atom that doesn't exist.");
+					continue;
+				}
+				
+				target.callVerb(verb.verbName, verb.arguments.toArray());
+			}
+		}
 	}
 	
 	public String getAccountName() {
@@ -261,6 +312,9 @@ public class Client
 	 */
 	public void createVerbDialog(Atom target)
 	{
+		// Cache the UID so we remember it later.
+		atomCache.put(target.getUID(), target);
+		
 		AtomVerbs verbs = target.getVerbs(this.holder);
 		DialogHandle.createSimpleDialog(this, "complexion.client.DialogVerb", verbs);
 	}
@@ -312,4 +366,11 @@ public class Client
 	/// This flag will be automatically cleared once everything has been sent.
 	/// Set to true by default, because on the first tick everything should be resent.
 	private boolean resendEverything = true;
+	
+	/// A queue of incoming network messages, sorted by arrival
+	ConcurrentLinkedQueue<Object> networkMessages =
+			new ConcurrentLinkedQueue<Object>();
+	
+	/** Local Atom cache, we'll use this to find which atom a verb was invoked on. **/
+	Map<Integer,Atom> atomCache = new HashMap<Integer,Atom>();
 }
