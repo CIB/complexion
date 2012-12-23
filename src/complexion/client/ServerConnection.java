@@ -92,68 +92,12 @@ public class ServerConnection extends Listener
 			client.setTick(data.tick);
 			connection.sendTCP(new LoginAccepted());
 		}
-		else if(object instanceof AtomDelta)
+		else 
 		{
-			// If it's an AtomDelta, put it into client.atomDeltas and
-			// allow the main thread to process it. We'll be sorting it
-			// into its specified tick.
-			AtomDelta delta = (AtomDelta) object;
-			client.atomDeltas.add(delta);
-		}
-		else if(object instanceof CreateDialog)
-		{
-			// If it's a CreateDialog, try to create the specified dialog.
-			CreateDialog create = (CreateDialog) object;
-			System.out.println(create.classID);
-			
-			try {
-				// We're creating the class from a string, this is a bit hacky.
-				
-				// First check what class was specified
-				@SuppressWarnings("rawtypes")
-				Class cl = Class.forName(create.classID);
-				
-				// Now make sure the class is actually a Dialog class
-				@SuppressWarnings("unchecked")
-				Class<Dialog> dialogClass = cl.asSubclass(Dialog.class);
-				
-				// Now initialize the dialog
-				Dialog dialog = dialogClass.newInstance();
-				dialog.UID = create.UID;
-				dialog.initialize(create.args);
-				if(dialog.root != null)
-				{
-					Client.current.gui.getRootPane().add(dialog.root);
-				}
-				Client.current.dialogsByUID.put(dialog.UID, dialog);
-			} catch (ClassNotFoundException e) {
-				System.err.println("Server asked to create non-existing dialog "+create.classID);
-				return;
-			} catch (InstantiationException e) {
-				System.err.println("Unable to instantiate given Dialog class "+create.classID);
-				return;
-			} catch (IllegalAccessException e) {
-				System.err.println("Unable to instantiate given Dialog class "+create.classID);
-				return;
-			} catch(ClassCastException e) {
-				System.err.println("Server attempted to create illegal Dialog class "+create.classID);
-				return;
-			}
-		}
-		else if(object instanceof DialogSync)
-		{
-			// If it's a DialogSync, forward the message to the correct Dialog instance
-			DialogSync sync = (DialogSync) object;
-			Dialog dialog = Client.current.dialogsByUID.get(sync.UID);
-			if(dialog == null)
-			{
-				System.err.println("Received DialogSync for Dialog UID that doesn't exist.");
-				return;
-			}
-			
-			dialog.messageQueue.add(sync.message);
+			this.client.serverMessages.add(object);
 		}
 	}
+	
 	public void send(Object data)
 	{
 		if(!connection.isConnected())

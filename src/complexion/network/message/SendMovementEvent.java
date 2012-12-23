@@ -4,12 +4,7 @@ package complexion.network.message;
  *  
  *  Usually sent alongside an AtomDelta.
  **/
-public class SendMovementEvent {
-	/// Tick on which this movement event starts
-	public int beginTick;
-	
-	/// Tick on which this movement event ends
-	public int endTick;
+public class SendMovementEvent extends SendEvent {
 	
 	/// UID of the atom which to move
 	public int atomUID;

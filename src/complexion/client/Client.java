@@ -3,8 +3,12 @@ package complexion.client;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
@@ -20,8 +24,12 @@ import complexion.common.Console;
 import complexion.common.Utils;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
+import complexion.network.message.CreateDialog;
+import complexion.network.message.DialogSync;
 import complexion.network.message.FullAtomUpdate;
 import complexion.network.message.InputData;
+import complexion.network.message.LoginAccepted;
+import complexion.network.message.SendEvent;
 
 import com.esotericsoftware.minlog.Log;
 
@@ -106,6 +114,13 @@ public class Client {
 			} else
 			{
 				Utils.sleep(1);
+			}
+
+			Object msg;
+			// Check for new messages from the server.
+			while((msg = current.serverMessages.poll()) != null)
+			{
+				current.processMessage(msg);
 			}
 					
 			// If we have a tick initialized, that means we're connected,
@@ -301,6 +316,72 @@ public class Client {
 		renderer.sortLayers();
 	}
 	
+	/** Process a message from the server. **/
+	private void processMessage(Object message)
+	{
+		if(message instanceof AtomDelta)
+		{
+			// If it's an AtomDelta, put it into client.atomDeltas and
+			// allow the main thread to process it. We'll be sorting it
+			// into its specified tick.
+			AtomDelta delta = (AtomDelta) message;
+			this.atomDeltas.add(delta);
+		}
+		else if(message instanceof CreateDialog)
+		{
+			// If it's a CreateDialog, try to create the specified dialog.
+			CreateDialog create = (CreateDialog) message;
+			System.out.println(create.classID);
+			
+			try {
+				// We're creating the class from a string, this is a bit hacky.
+				
+				// First check what class was specified
+				@SuppressWarnings("rawtypes")
+				Class cl = Class.forName(create.classID);
+				
+				// Now make sure the class is actually a Dialog class
+				@SuppressWarnings("unchecked")
+				Class<Dialog> dialogClass = cl.asSubclass(Dialog.class);
+				
+				// Now initialize the dialog
+				Dialog dialog = dialogClass.newInstance();
+				dialog.UID = create.UID;
+				dialog.initialize(create.args);
+				if(dialog.root != null)
+				{
+					Client.current.gui.getRootPane().add(dialog.root);
+				}
+				Client.current.dialogsByUID.put(dialog.UID, dialog);
+			} catch (ClassNotFoundException e) {
+				System.err.println("Server asked to create non-existing dialog "+create.classID);
+				return;
+			} catch (InstantiationException e) {
+				System.err.println("Unable to instantiate given Dialog class "+create.classID);
+				return;
+			} catch (IllegalAccessException e) {
+				System.err.println("Unable to instantiate given Dialog class "+create.classID);
+				return;
+			} catch(ClassCastException e) {
+				System.err.println("Server attempted to create illegal Dialog class "+create.classID);
+				return;
+			}
+		}
+		else if(message instanceof DialogSync)
+		{
+			// If it's a DialogSync, forward the message to the correct Dialog instance
+			DialogSync sync = (DialogSync) message;
+			Dialog dialog = current.dialogsByUID.get(sync.UID);
+			if(dialog == null)
+			{
+				System.err.println("Received DialogSync for Dialog UID that doesn't exist.");
+				return;
+			}
+			
+			dialog.messageQueue.add(sync.message);
+		}
+	}
+	
 	/** Get the width of the LWJGL display **/
 	public int getDisplayWidth()
 	{
@@ -324,10 +405,21 @@ public class Client {
 	/// Maps Atom UID's to the respective atoms
 	private Map<Integer,Atom> atomsByUID = new HashMap<Integer,Atom>();
 	
-	/// A private Queue of AtomDeltas which have been incoming.
-	/// Sorted by the order in which they arrived.
-	ConcurrentLinkedQueue<AtomDelta> atomDeltas =
-			new ConcurrentLinkedQueue<AtomDelta>();
+	/** A private Queue of AtomDeltas which have been incoming.
+	 *  Sorted by the order in which they arrived.
+	 */
+	Queue<AtomDelta> atomDeltas =
+			new LinkedList<AtomDelta>();
+	
+
+	/** A list of messages received by the server in the order they arrived. **/
+	ConcurrentLinkedQueue<Object> serverMessages =
+			new ConcurrentLinkedQueue<Object>();
+	
+	/** A list of events that are currently active, or have been sent by
+	 *  the server and will be active shortly.
+	 */
+	List<SendEvent> activeEvents = new ArrayList<SendEvent>();
 	
 	/// Represents the current tick the client is processing from the server.
 	/// A value of -1 means that no tick has been processed yet.
