@@ -30,6 +30,7 @@ import complexion.network.message.FullAtomUpdate;
 import complexion.network.message.InputData;
 import complexion.network.message.LoginAccepted;
 import complexion.network.message.SendEvent;
+import complexion.network.message.SendMovementEvent;
 
 import com.esotericsoftware.minlog.Log;
 
@@ -173,6 +174,9 @@ public class Client {
 					}
 				}
 			}
+			
+			// Handle events
+			current.handleEvents();
 			
 			// Process mouse click events
 			// TODO: Add scroll events from LWJGLInput.java
@@ -379,6 +383,70 @@ public class Client {
 			}
 			
 			dialog.messageQueue.add(sync.message);
+		}
+		else if(message instanceof SendEvent)
+		{
+			SendEvent event = (SendEvent) message;
+			this.activeEvents.add(event);
+		}
+	}
+	
+	/** Handle events that might currently be happening. **/
+	private void handleEvents()
+	{
+		List<SendEvent> eventsToRemove = new LinkedList<SendEvent>();
+		for(SendEvent event : activeEvents)
+		{
+			// Remove events that are over.
+			if(event.endTick > this.tick)
+			{
+				// Have to work indirectly here due to iterators breaking
+				// if we remove the event directly.
+				eventsToRemove.add(event);
+				continue;
+			}
+			
+			// Process events that are happening now
+			if(event.beginTick >= this.tick && event.endTick <= this.tick)
+			{
+				processEvent(event);
+			}
+		}
+		
+		activeEvents.removeAll(eventsToRemove);
+	}
+	
+	private void processEvent(SendEvent event)
+	{
+		// Event progress in %
+		double eventProgress = (tick - event.beginTick) / (event.endTick - event.beginTick);
+		
+		if(event instanceof SendMovementEvent)
+		{
+			
+			SendMovementEvent movementEvent = (SendMovementEvent) event;
+			Atom atom = atomsByUID.get(movementEvent.atomUID);
+			
+			if(tick == event.endTick)
+			{
+				atom.tile_x = movementEvent.end_x;
+				atom.tile_y = movementEvent.end_y;
+				atom.pixel_x = 0;
+				atom.pixel_y = 0;
+			}
+			
+			int startX = movementEvent.start_x * Config.tileWidth;
+			int startY = movementEvent.start_y * Config.tileHeight;
+			int endX = movementEvent.end_x * Config.tileWidth;
+			int endY = movementEvent.end_y * Config.tileHeight;
+			
+			int new_x = (int) (startX + (endX - startX) * eventProgress);
+			int new_y = (int) (startY + (endY - startY) * eventProgress);
+			
+			atom.tile_x = new_x / Config.tileWidth;
+			atom.tile_y = new_y / Config.tileHeight;
+			atom.pixel_x = new_x % Config.tileWidth;
+			atom.pixel_y = new_y % Config.tileHeight;
 		}
 	}
 	
