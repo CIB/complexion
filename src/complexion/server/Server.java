@@ -43,7 +43,7 @@ public class Server {
 		current = new Server();
 		
 		// See https://code.google.com/p/minlog/#Log_level
-		Log.set(Log.LEVEL_DEBUG);
+		//Log.set(Log.LEVEL_DEBUG);
 		
 		// Generate all the Zlevels for the map and store them in this.map
 		current.map = new Zlevel[height];
@@ -158,9 +158,19 @@ public class Server {
 	 */
 	public void nextTick()
 	{
-		this.tick++;
+		this.tick++;		
 		
-		// First update all clients
+		// First give all clients a chance to process custom logic
+		for(Map.Entry<Connection, Client> entry : clientsByIP.entrySet())
+		{
+			Client client = entry.getValue();
+			// Check if the client has a connection; If not, it's not ready.
+			if(client.connection == null) continue;
+			
+			client.Tick();
+		}
+		
+		// Then update all clients
 		for(Map.Entry<Connection, Client> entry : clientsByIP.entrySet())
 		{
 			Client client = entry.getValue();

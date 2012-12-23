@@ -1,14 +1,16 @@
 package complexion.server;
 
+
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.FrameworkMessage.KeepAlive;
 import com.esotericsoftware.kryonet.Listener;
-import complexion.network.message.InputData;
+
+import complexion.server.Client;
 
 /**
  * This class represents a single TCP connection to a client.
  */
 public class ClientConnection extends Listener {
-	
 	/**
 	 * Create a new connection associated with the given client
 	 * 
@@ -50,14 +52,10 @@ public class ClientConnection extends Listener {
 	@Override
 	public void received(Connection connection, Object message)
 	{
-		System.out.println("ClientConnection: "+message);
-		if(message instanceof InputData)
-		{
-			InputData data = (InputData) message;
-			String has = "pressed";
-			System.out.println(client.getAccountName() + " has " + has + data.key);
-			client.ProcessInput(data.key);
-		}
+		// Ignore keepalive messages
+		if(message instanceof KeepAlive) return;
+		
+		client.networkMessages.add(message);
 	}
 	
 	/**

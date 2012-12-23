@@ -1,20 +1,35 @@
 package complexion.server;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 import org.lwjgl.input.Keyboard;
 
 import complexion.common.Directions;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
+import complexion.network.message.AtomVerbs;
+import complexion.network.message.DialogSync;
 import complexion.network.message.FullAtomUpdate;
+import complexion.network.message.InputData;
+import complexion.network.message.VerbResponse;
+import complexion.network.message.VerbSignature;
+import complexion.test.TestAtom;
 
 /**
  * This class represents a single client connected to the server.
  * The class can be used to send messages to the server etc.
  */
 public class Client 
-{
+{	
+	/** Maintains a list of all dialogs currently open.
+	 */
+	ConcurrentMap<Integer,DialogHandle> dialogsByUID = new ConcurrentHashMap<Integer,DialogHandle>();
+	
 	/// Identifies the client in the (as of yet non-existent)
 	/// login system
 	String account_name;
@@ -23,8 +38,12 @@ public class Client
 	private Mob holder;
 	/// The TCP connection this client uses.
 	ClientConnection connection;
+	
+	// TODO: test variable, remove
+	DialogHandle testDialog;
 
-	public Client()
+	/** A sort of constructor called after the Client has been set up properly. **/
+	public void initialize()
 	{
 		Mob test_mover = new Mob();
 		test_mover.setSprite("mask.dmi");
@@ -32,7 +51,70 @@ public class Client
 		test_mover.setLayer(10);
 		test_mover.Move(Server.current.getTile(1, 1, 0));
 		setHolder(test_mover);
+		
+		testDialog = new DialogHandle(this,"complexion.test.TestDialog",null);
+		DialogHandle dialog2 = new DialogHandle(this,"randomgarbleclass",null);
+		DialogHandle dialog3 = new DialogHandle(this,"complexion.test.KryoTest",null);
+		
+		TestAtom a = new TestAtom();
+		this.createVerbDialog(a);
+		
+		testDialog.sendMessage("Test");
 	}
+	
+	/** Handler invoked regularly(every tick) to process things. **/
+	public void Tick()
+	{
+		//testDialog.sendMessage("TickMessage!");
+		Object o = testDialog.pollMessage();
+		if(o != null) System.out.println(o);
+		
+		// ====== PROCESS NETWORK MESSAGES ======
+		while(networkMessages.size() > 0)
+		{
+			// No need to check whether message retrievel was successful,
+			// due to the fact that other threads will only add, not remove
+			// messages from the queue
+			Object message = networkMessages.poll();
+			
+			// Process network events.
+			System.out.println("ClientConnection: "+message);
+			if(message instanceof InputData)
+			{
+				InputData data = (InputData) message;
+				String has = "pressed";
+				System.out.println(getAccountName() + " has " + has + data.key);
+				ProcessInput(data.key);
+			}
+			if(message instanceof DialogSync)
+			{
+				// If it's a DialogSync, forward the message to the correct Dialog instance
+				DialogSync sync = (DialogSync) message;
+				DialogHandle dialog = dialogsByUID.get(sync.UID);
+				if(dialog == null)
+				{
+					System.err.println("Received DialogSync for Dialog UID that doesn't exist.");
+					continue;
+				}
+				dialog.messageQueue.add(sync.message);
+			}
+			if(message instanceof VerbResponse)
+			{
+				VerbResponse verb = (VerbResponse) message;
+				Atom target = atomCache.get(verb.UID);
+				
+				// If the atom doesn't exist anymore, that's a problem.
+				if(target == null)
+				{
+					System.err.println("Received VerbResponse for atom that doesn't exist.");
+					continue;
+				}
+				
+				target.callVerb(verb.verbName, verb.arguments.toArray());
+			}
+		}
+	}
+	
 	public String getAccountName() {
 		return account_name;
 	}
@@ -223,6 +305,20 @@ public class Client
 		this.holder.setClient(this);
 	}
 	
+	/** Creates a verb dialog for the specified target. Does nothing if the target
+	 *  has zero verbs that this client's holder can interact with.
+	 *  
+	 * @param target The atom to interact with, holding the list of verbs we might use.
+	 */
+	public void createVerbDialog(Atom target)
+	{
+		// Cache the UID so we remember it later.
+		atomCache.put(target.getUID(), target);
+		
+		AtomVerbs verbs = target.getVerbs(this.holder);
+		DialogHandle.createSimpleDialog(this, "complexion.client.DialogVerb", verbs);
+	}
+	
 	private void addTileToDelta(Tile tile, AtomDelta delta)
 	{
 		// Make sure the turf actually exists
@@ -270,4 +366,11 @@ public class Client
 	/// This flag will be automatically cleared once everything has been sent.
 	/// Set to true by default, because on the first tick everything should be resent.
 	private boolean resendEverything = true;
+	
+	/// A queue of incoming network messages, sorted by arrival
+	ConcurrentLinkedQueue<Object> networkMessages =
+			new ConcurrentLinkedQueue<Object>();
+	
+	/** Local Atom cache, we'll use this to find which atom a verb was invoked on. **/
+	Map<Integer,Atom> atomCache = new HashMap<Integer,Atom>();
 }

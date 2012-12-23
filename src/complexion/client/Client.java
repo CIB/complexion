@@ -3,37 +3,58 @@ package complexion.client;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
 
 import complexion.common.Config;
 import complexion.common.Console;
 import complexion.common.Utils;
 import complexion.network.message.AtomDelta;
 import complexion.network.message.AtomUpdate;
+import complexion.network.message.CreateDialog;
+import complexion.network.message.DialogSync;
 import complexion.network.message.FullAtomUpdate;
 import complexion.network.message.InputData;
-import complexion.server.Server;
+import complexion.network.message.LoginAccepted;
+import complexion.network.message.SendEvent;
 
 import com.esotericsoftware.minlog.Log;
+
+import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
+import de.matthiasmann.twl.theme.ThemeManager;
 
 /**
  * Class representing the entire client application, and global
  * client state.
  */
-public class Client {
+public class Client {	
+
+	/** Maintains a list of all dialogs currently open.
+	 */
+	ConcurrentMap<Integer,Dialog> dialogsByUID = new ConcurrentHashMap<Integer,Dialog>();
 	
-	/// Permanently passing around client instances is very bothersome.
-	///
-	/// Since in one application, we will have only one client, use a
-	/// global instance instead.
+	/** Permanently passing around client instances is very bothersome.
+	    Since in one application, we will have only one client, use a
+		global instance instead.
+	**/
 	public static Client current;
+	
+	/** TWL topevel GUI instance this client uses for rendering its GUI widgets. **/
+	GUI gui;
 	
 	/**
 	 * Client program initialization and loop.
@@ -42,6 +63,35 @@ public class Client {
 	{
 		current = new Client();
 		
+		// See https://code.google.com/p/minlog/#Log_level
+		//Log.set(Log.LEVEL_DEBUG);
+		//new Console();
+				
+		// Initialize the client window.
+		try {
+			current.renderer = new Renderer(1.5);
+		} catch (LWJGLException e) {
+			Client.notifyError("Error setting up program window. Exiting.", e);
+			System.exit(1); // Exit with 1 to signify that an error occured
+		}
+		
+		// Build the GUI
+        LWJGLRenderer guiRenderer;
+		try {
+			guiRenderer = new LWJGLRenderer();
+	        current.gui = new GUI(guiRenderer);
+	        // TODO: load the root level theme from a nicer file(in res/, no weird ../../.. paths)
+	        ThemeManager theme = ThemeManager.createThemeManager(
+	        		Client.class.getResource("test.xml"), guiRenderer);
+	        current.gui.applyTheme(theme);
+		} catch (LWJGLException e) {
+			Client.notifyError("Error setting up GUI instance. Exiting.", e);
+			System.exit(1);
+		} catch (IOException e) {
+			Client.notifyError("Error setting up GUI instance. Exiting.", e);
+			System.exit(1);
+		}
+
 		// Try to log into a preconfigured server.
 		// This should become a user dialog later.
 		try {
@@ -54,18 +104,6 @@ public class Client {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		// See https://code.google.com/p/minlog/#Log_level
-		Log.set(Log.LEVEL_DEBUG);
-		new Console();
-				
-		// Initialize the client window.
-		try {
-			current.renderer = new Renderer();
-		} catch (LWJGLException e) {
-			Client.notifyError("Error setting up program window. Exiting.", e);
-			System.exit(1); // Exit with 1 to signify that an error occured
-		}
 				
 		// Intercept and process AtomDelta's
 		while(!Display.isCloseRequested())
@@ -76,6 +114,13 @@ public class Client {
 			} else
 			{
 				Utils.sleep(1);
+			}
+
+			Object msg;
+			// Check for new messages from the server.
+			while((msg = current.serverMessages.poll()) != null)
+			{
+				current.processMessage(msg);
 			}
 					
 			// If we have a tick initialized, that means we're connected,
@@ -128,15 +173,22 @@ public class Client {
 					}
 				}
 			}
-					
-			if(Mouse.isButtonDown(0)) // left click
-			{
-				current.onClick(Mouse.getX(),Mouse.getY(),0);
-			}
-			else if(Mouse.isButtonDown(1)) // Right click
-			{
-				current.onClick(Mouse.getX(),Mouse.getY(),1);
-			}
+			
+			// Process mouse click events
+			// TODO: Add scroll events from LWJGLInput.java
+            while(Mouse.next()) {
+            	// First check whether TWL can handle the event
+                boolean handledByTWL = current.gui.handleMouse(
+                        Mouse.getEventX(), current.gui.getHeight() - Mouse.getEventY() - 1,
+                        Mouse.getEventButton(), Mouse.getEventButtonState());
+                
+                // If TWL can't handle the click, and the event was a mouse button press, 
+                // check whether the event is an atom click
+                if(!handledByTWL && Mouse.getEventButtonState())
+                {
+					current.onClick(Mouse.getEventX(),Mouse.getEventY(),Mouse.getEventButton());
+                }
+            }
 					
 			// Check if any keys were pressed.
 			while(Keyboard.next() && Display.isVisible())
@@ -150,8 +202,32 @@ public class Client {
 					current.connection.send(data);
 				}
 			}
+			
+			// Handle dialog messages
+			for(Dialog dialog : Client.current.dialogsByUID.values())
+			{
+				Object message = dialog.messageQueue.poll();
+				while(message != null)
+				{
+					// Invoke the Dialog's handler for processing messages
+					dialog.processMessage(message);
+					
+					message = dialog.messageQueue.poll();
+				}
+			}
+			
+			// Clear the screen and depth buffer
+			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+			
 			// Re-render the widget
 			current.renderer.draw();
+			
+			// Draw the GUI
+			// TODO: handle mouse and keyboard events where appropriate
+			current.gui.updateTime();
+			current.gui.draw();
+
+			Display.update();
 		}
 
 		current.renderer.destroy();
@@ -240,16 +316,110 @@ public class Client {
 		renderer.sortLayers();
 	}
 	
+	/** Process a message from the server. **/
+	private void processMessage(Object message)
+	{
+		if(message instanceof AtomDelta)
+		{
+			// If it's an AtomDelta, put it into client.atomDeltas and
+			// allow the main thread to process it. We'll be sorting it
+			// into its specified tick.
+			AtomDelta delta = (AtomDelta) message;
+			this.atomDeltas.add(delta);
+		}
+		else if(message instanceof CreateDialog)
+		{
+			// If it's a CreateDialog, try to create the specified dialog.
+			CreateDialog create = (CreateDialog) message;
+			System.out.println(create.classID);
+			
+			try {
+				// We're creating the class from a string, this is a bit hacky.
+				
+				// First check what class was specified
+				@SuppressWarnings("rawtypes")
+				Class cl = Class.forName(create.classID);
+				
+				// Now make sure the class is actually a Dialog class
+				@SuppressWarnings("unchecked")
+				Class<Dialog> dialogClass = cl.asSubclass(Dialog.class);
+				
+				// Now initialize the dialog
+				Dialog dialog = dialogClass.newInstance();
+				dialog.UID = create.UID;
+				dialog.initialize(create.args);
+				if(dialog.root != null)
+				{
+					Client.current.gui.getRootPane().add(dialog.root);
+				}
+				Client.current.dialogsByUID.put(dialog.UID, dialog);
+			} catch (ClassNotFoundException e) {
+				System.err.println("Server asked to create non-existing dialog "+create.classID);
+				return;
+			} catch (InstantiationException e) {
+				System.err.println("Unable to instantiate given Dialog class "+create.classID);
+				return;
+			} catch (IllegalAccessException e) {
+				System.err.println("Unable to instantiate given Dialog class "+create.classID);
+				return;
+			} catch(ClassCastException e) {
+				System.err.println("Server attempted to create illegal Dialog class "+create.classID);
+				return;
+			}
+		}
+		else if(message instanceof DialogSync)
+		{
+			// If it's a DialogSync, forward the message to the correct Dialog instance
+			DialogSync sync = (DialogSync) message;
+			Dialog dialog = current.dialogsByUID.get(sync.UID);
+			if(dialog == null)
+			{
+				System.err.println("Received DialogSync for Dialog UID that doesn't exist.");
+				return;
+			}
+			
+			dialog.messageQueue.add(sync.message);
+		}
+	}
+	
+	/** Get the width of the LWJGL display **/
+	public int getDisplayWidth()
+	{
+		return Display.getWidth();
+	}
+
+	
+
+	/** Get the height of the LWJGL display **/
+	public int getDisplayHeight()
+	{
+		return Display.getHeight();
+	}
+
+	
 	private Renderer renderer;
-	private ServerConnection connection;
+	
+	/** Instance responsible for exchanging messages with the server. **/
+	ServerConnection connection;
 	
 	/// Maps Atom UID's to the respective atoms
 	private Map<Integer,Atom> atomsByUID = new HashMap<Integer,Atom>();
 	
-	/// A private HashMap of AtomDeltas which have been incoming.
-	/// This maps world ticks to AtomDelta's
-	ConcurrentLinkedQueue<AtomDelta> atomDeltas =
-			new ConcurrentLinkedQueue<AtomDelta>();
+	/** A private Queue of AtomDeltas which have been incoming.
+	 *  Sorted by the order in which they arrived.
+	 */
+	Queue<AtomDelta> atomDeltas =
+			new LinkedList<AtomDelta>();
+	
+
+	/** A list of messages received by the server in the order they arrived. **/
+	ConcurrentLinkedQueue<Object> serverMessages =
+			new ConcurrentLinkedQueue<Object>();
+	
+	/** A list of events that are currently active, or have been sent by
+	 *  the server and will be active shortly.
+	 */
+	List<SendEvent> activeEvents = new ArrayList<SendEvent>();
 	
 	/// Represents the current tick the client is processing from the server.
 	/// A value of -1 means that no tick has been processed yet.

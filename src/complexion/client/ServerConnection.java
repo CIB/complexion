@@ -2,12 +2,16 @@ package complexion.client;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import complexion.common.Utils;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import complexion.network.message.AtomDelta;
+import complexion.network.message.CreateDialog;
+import complexion.network.message.DialogSync;
 import complexion.network.message.LoginAccepted;
 import complexion.network.message.LoginRequest;
 import complexion.network.message.RegisterClasses;
@@ -19,6 +23,7 @@ import complexion.network.message.RegisterClasses;
  */
 public class ServerConnection extends Listener
 {
+	
 	/**
 	 * Create a new ServerConnection, which will automatically
 	 * connect to the specified host.
@@ -87,15 +92,12 @@ public class ServerConnection extends Listener
 			client.setTick(data.tick);
 			connection.sendTCP(new LoginAccepted());
 		}
-		else if(object instanceof AtomDelta)
+		else 
 		{
-			// If it's an AtomDelta, put it into client.atomDeltas and
-			// allow the main thread to process it. We'll be sorting it
-			// into its specified tick.
-			AtomDelta delta = (AtomDelta) object;
-			client.atomDeltas.add(delta);
+			this.client.serverMessages.add(object);
 		}
 	}
+	
 	public void send(Object data)
 	{
 		if(!connection.isConnected())

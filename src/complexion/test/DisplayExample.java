@@ -12,7 +12,7 @@ import complexion.resource.Sprite;
 
 public class DisplayExample {
 	public static void main(String[] argv) throws IOException, InterruptedException, LWJGLException {
-		Renderer r = new Renderer();
+		Renderer r = new Renderer(1);
 		
 		Sprite s = new Sprite("mask.dmi");
 		

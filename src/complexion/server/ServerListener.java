@@ -92,6 +92,7 @@ public class ServerListener extends Listener
 					// Finish initializing the client.
 					new_client.account_name = request.account_name;
 					new_client.connection = new ClientConnection(new_client, connection);
+					new_client.initialize();
 				}
 			}
 			
